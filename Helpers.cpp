@@ -35,7 +35,7 @@ namespace ProcessHandling {
 
 		memory->GetDebugPrivileges();
 		int processId = memory->GetProcessId(processName);
-		HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, false, processId);
+		HANDLE processHandle = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ | 0, false, processId);
 
 		return processHandle;
 	}

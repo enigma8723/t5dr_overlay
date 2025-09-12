@@ -72,11 +72,11 @@ BOOL Memory::GetDebugPrivileges(void) {
 	
 	return TRUE;
 }
-int Memory::ReadInt(HANDLE processHandle, int64_t address) {
+int Memory::ReadInt(HANDLE processHandle, int64_t address, SIZE_T size) {
     if (address == -1)
         return -1;
     int buffer = 0;
-    SIZE_T NumberOfBytesToRead = sizeof(buffer); //this is equal to 4
+    SIZE_T NumberOfBytesToRead = size; // sizeof(buffer); //this is equal to 4
     SIZE_T NumberOfBytesActuallyRead;
     BOOL success = ReadProcessMemory(processHandle, (LPCVOID)address, (LPVOID)&buffer, NumberOfBytesToRead, &NumberOfBytesActuallyRead);
     if (!success || NumberOfBytesActuallyRead != NumberOfBytesToRead) {

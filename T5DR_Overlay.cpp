@@ -25,7 +25,7 @@ void T5DROverlay::QueryOverlayInfo() {
 
 	gameAddr p1AnimLengthAddress = p1Address + t5drAddresses.t5_currmove_anim_len_offset;
 
-	int32_t p1AnimLength = memory.ReadInt(processHandle, p1AnimLengthAddress);
+	int32_t p1AnimLength = memory.ReadInt(processHandle, p1AnimLengthAddress, 2);
 	ByteswapHelpers::SWAP_INT16(&p1AnimLength);
 
 	std::cout << "p1 address: " << p1AnimLength << std::endl;

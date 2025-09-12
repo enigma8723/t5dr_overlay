@@ -15,7 +15,7 @@ public:
     int GetProcessId(std::string processName);
     BOOL SetPrivilege(HANDLE hToken, LPCTSTR lpszPrivilege, BOOL bEnablePrivilege);
     BOOL GetDebugPrivileges(void);
-    int ReadInt(HANDLE processHandle, int64_t address);
+    int ReadInt(HANDLE processHandle, int64_t address, SIZE_T size = 4);
     int GetPointerAddress(HANDLE processHandle, int64_t startAddress, int offsets[], int offsetCount);
     int ReadPointerInt(HANDLE processHandle, int64_t startAddress, int offsets[], int offsetCount);
     float ReadFloat(HANDLE processHandle, int address);
