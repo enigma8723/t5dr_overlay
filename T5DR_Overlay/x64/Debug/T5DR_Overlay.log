@@ -1,0 +1,12 @@
+﻿  Memory.cpp
+I:\Programming\T5DR_Overlay\Memory.cpp(18,51): warning C4244: 'argument': conversion from 'WCHAR' to '_Elem', possible loss of data
+I:\Programming\T5DR_Overlay\Memory.cpp(18,51): warning C4244:         with
+I:\Programming\T5DR_Overlay\Memory.cpp(18,51): warning C4244:         [
+I:\Programming\T5DR_Overlay\Memory.cpp(18,51): warning C4244:             _Elem=char
+I:\Programming\T5DR_Overlay\Memory.cpp(18,51): warning C4244:         ]
+I:\Programming\T5DR_Overlay\Memory.cpp(103,9): warning C4244: 'return': conversion from 'int64_t' to 'int', possible loss of data
+I:\Programming\T5DR_Overlay\Memory.cpp(116,53): warning C4312: 'type cast': conversion from 'int' to 'LPCVOID' of greater size
+I:\Programming\T5DR_Overlay\Memory.cpp(135,51): warning C4312: 'type cast': conversion from 'int' to 'LPCVOID' of greater size
+  T5DR_Overlay.vcxproj -> I:\Programming\T5DR_Overlay\x64\Debug\T5DR_Overlay.exe
+  Der Befehl "pwsh.exe" ist entweder falsch geschrieben oder
+  konnte nicht gefunden werden.
