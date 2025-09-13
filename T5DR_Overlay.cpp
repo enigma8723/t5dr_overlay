@@ -22,13 +22,40 @@ void T5DROverlay::QueryOverlayInfo() {
 	HANDLE processHandle = ProcessHandling::AttachToProcess(processName, &memory);
 
 	gameAddr p1Address = gameAdresses.rpcs3_addr + t5drAddresses.t5dr_p1_addr;
+	gameAddr p2Address = gameAdresses.rpcs3_addr + t5drAddresses.t5dr_p1_addr + t5drAddresses.t5_playerstruct_size_offset;
 
 	gameAddr p1AnimLengthAddress = p1Address + t5drAddresses.t5_currmove_anim_len_offset;
+	gameAddr p1CurrentMoveAddress = p1Address + t5drAddresses.t5_currmove_id_offset;
+	gameAddr p1CurrentMoveConnectsAddress = gameAdresses.rpcs3_addr + t5drAddresses.t5dr_p1_attack_connects_addr;
 
-	int32_t p1AnimLength = memory.ReadInt(processHandle, p1AnimLengthAddress, 2);
+
+	gameAddr p2AnimLengthAddress = p2Address + t5drAddresses.t5_currmove_anim_len_offset;
+	gameAddr p2CurrentMoveAddress = p2Address + t5drAddresses.t5_currmove_id_offset;
+	gameAddr p2CurrentMoveConnectsAddress = gameAdresses.rpcs3_addr + t5drAddresses.t5dr_p2_attack_connects_addr;
+
+	p1CurrentMoveId = (uint16_t) memory.ReadInt(processHandle, p1CurrentMoveAddress, 2);
+	p1AnimLength = (uint16_t) memory.ReadInt(processHandle, p1AnimLengthAddress, 2);
+	p1CurrentMoveConnects = memory.ReadInt(processHandle, p1CurrentMoveConnectsAddress, 4);
+
+	p2CurrentMoveId = (uint16_t)memory.ReadInt(processHandle, p2CurrentMoveAddress, 2);
+	p2AnimLength = (uint16_t)memory.ReadInt(processHandle, p2AnimLengthAddress, 2);
+	p2CurrentMoveConnects = memory.ReadInt(processHandle, p2CurrentMoveConnectsAddress, 4);
+
+	ByteswapHelpers::SWAP_INT16(&p1CurrentMoveId);
 	ByteswapHelpers::SWAP_INT16(&p1AnimLength);
+	ByteswapHelpers::SWAP_INT32(&p1CurrentMoveConnects);
 
-	std::cout << "p1 address: " << p1AnimLength << std::endl;
+	ByteswapHelpers::SWAP_INT16(&p2CurrentMoveId);
+	ByteswapHelpers::SWAP_INT16(&p2AnimLength);
+	ByteswapHelpers::SWAP_INT32(&p2CurrentMoveConnects);
+
+	std::cout << "p1 move id: " << p1CurrentMoveId << std::endl;
+	std::cout << "p1 move anim length: " << p1AnimLength << std::endl;
+	std::cout << "p1 move connects?: " << p1CurrentMoveConnects << std::endl;
+
+	std::cout << "p2 move id: " << p2CurrentMoveId << std::endl;
+	std::cout << "p2 move anim length: " << p2AnimLength << std::endl;
+	std::cout << "p2 move connects?: " << p2CurrentMoveConnects << std::endl;
 
 	std::cin.get();
 }
