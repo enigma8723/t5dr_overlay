@@ -22,4 +22,5 @@ public:
     float ReadPointerFloat(HANDLE processHandle, int startAddress, int offsets[], int offsetCount);
     char* ReadText(HANDLE processHandle, int address);
     char* ReadPointerText(HANDLE processHandle, int startAddress, int offsets[], int offsetCount);
+    void ReadBytes(HANDLE processHandle, void* buffer, int64_t address, SIZE_T size);
 };

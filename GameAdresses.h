@@ -14,5 +14,6 @@ struct T5DRAddresses {
 	uint16_t t5_currmove_id_offset = 0x158;
 	uint16_t t5_currmove_anim_len_offset = 0x170;
 	uint16_t t5_playerstruct_size_offset = 0x8D0;
-	uint16_t t5_motbin_offset_offset = 0x50;
+	uint16_t t5_moveset_toc_address_offset = 0x50;
+	uint16_t t5_moveset_toc_moves_adress_offset = 0x1E0;
 };

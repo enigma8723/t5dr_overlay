@@ -6,6 +6,8 @@
 typedef uint64_t gameAddr;
 typedef uint32_t gameAddr32;
 
+typedef unsigned char Byte;
+
 struct Move
 {
 	gameAddr32 name_addr;

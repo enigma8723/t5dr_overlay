@@ -8,6 +8,12 @@ class T5DROverlay {
 
 private:
 
+	HANDLE processHandle;
+	Memory memory;
+
+	Byte* p1MovesetBlock;
+	uint32_t moveCount;
+
 	uint16_t p1CurrentMoveId;
 	uint16_t p1AnimLength;
 	uint32_t p1CurrentMoveConnects;
@@ -20,7 +26,10 @@ private:
 
 public:
 
-	void QueryOverlayInfo();
+	void AttachToProcess();
+
+	void QueryCurrentMoveInfo();
+	void QueryMovelistP1();
 
 	void DisplayOverlayInfo();
 

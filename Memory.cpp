@@ -146,3 +146,21 @@ char* Memory::ReadPointerText(HANDLE processHandle, int startAddress, int offset
         return (char*) "-1";
 	return ReadText(processHandle, GetPointerAddress(processHandle, startAddress, offsets, offsetCount));
 }
+
+void Memory::ReadBytes(HANDLE processHandle, void* buffer, int64_t address, SIZE_T size) {
+    if (address == -1)
+        return;
+    SIZE_T NumberOfBytesToRead = size; // sizeof(buffer); //this is equal to 4
+    SIZE_T NumberOfBytesActuallyRead;
+    BOOL success = ReadProcessMemory(processHandle, (LPCVOID)address, (LPVOID)buffer, NumberOfBytesToRead, &NumberOfBytesActuallyRead);
+    if (!success || NumberOfBytesActuallyRead != NumberOfBytesToRead) {
+        std::cout << "Memory Error!" << std::endl;
+        return;
+    }
+    //if (err || NumberOfBytesActuallyRead != NumberOfBytesToRead) {
+    //	DWORD lastError = GetLastError();
+    //	if (lastError != 0)
+    //        std::cout << lastError << std::endl;
+    //    std::cout << "blub" << std::endl;
+    //}
+}
