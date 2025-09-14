@@ -138,40 +138,48 @@ void T5DROverlay::QueryMovelistP1() {
 
 }
 
-
+// enigma start: display move id and name with move props
+// The move ids in the editor and also at memory address 3100909A8 are just the locations of the moves in the movelist (first move is 0, second is 1, third is 2 and so on).
+// Exceptions: Standing anim (32769) and crouching anim (32770).
 void T5DROverlay::DisplayOverlayInfo() {
-	// enigma start: display move id and name with move props
-	// The move ids in the editor and also at memory address 3100909A8 are just the locations of the moves in the movelist (first move is 0, second is 1, third is 2 and so on).
-	// Exceptions: Standing anim (32769) and crouching anim (32770).
+	
 	uint16_t assignedMoveId = 0;
 
 	// Create dictionary for mapping the move ids to the moves.
 	std::map<uint16_t, Move> movesMap_p1;
-	
+
 	for (auto& move : StructIterator<Move>(p1MovesetBlock, moveCount))
 	{
 		movesMap_p1[assignedMoveId] = move;
 		assignedMoveId++;
 	}
 
+	uint16_t p1CurrentMoveIdCorrected = p1CurrentMoveId;
+	uint16_t p2CurrentMoveIdCorrected = p2CurrentMoveId;
+
 	// Standing anim gets reporting as 32769 but has move id 0.
 	if (p1CurrentMoveId == 32769) {
-		p1CurrentMoveId = 0;
+		p1CurrentMoveIdCorrected = 0;
 	}
 
 	// Crouching anim gets reporting as 32770 but has an unknown move id. @todo: Find correct move id for crouching anim.
 	if (p1CurrentMoveId == 32770) {
-		p1CurrentMoveId = 0;
+		p1CurrentMoveIdCorrected = 0;
 	}
+
+	Move p1CurrentMove = movesMap_p1.at(p1CurrentMoveIdCorrected);
 
 	int16_t p1FrameAdvantage = 0;
 	int16_t p2FrameAdvantage = 0;
 
-	if (p1CurrentMoveConnects != 0 || p2CurrentMoveConnects != 0) {
+	// @todo: Add frame data overlay for p2.
+	// If p1 move connects, p1 move has a hitbox and p2 is not executing the same move as before (e.g. first p1 move was blocked, now it hits).
+	if (p1CurrentMoveConnects != 0 && p1CurrentMove.hitbox_location != 0 && p2CurrentMoveId != p2LastMoveId) {
 
 		if (p1CurrentMoveConnects != 0 && p2CurrentMoveConnects == 0) {
-			p1FrameAdvantage = p2AnimLength - (p1AnimLength - movesMap_p1.at(p1CurrentMoveId).first_active_frame);
-			p2FrameAdvantage = p1FrameAdvantage  * -1;
+			// @todo: first_active_frame needs to be changed to the frame the move hit on.
+			p1FrameAdvantage = p2AnimLength - (p1AnimLength - p1CurrentMove.first_active_frame);
+			p2FrameAdvantage = p1FrameAdvantage * -1;
 		}
 		else {
 			/*
@@ -186,40 +194,40 @@ void T5DROverlay::DisplayOverlayInfo() {
 			*/
 		}
 
-	}
-	
-	std::cout << "p1 move id: " << p1CurrentMoveId << std::endl;
-	std::cout << "p1 move anim length: " << p1AnimLength << std::endl;
-	std::cout << "p1 move connects?: " << p1CurrentMoveConnects << std::endl;
-	std::cout << "p1 frame advantage: " << p1FrameAdvantage << std::endl;
+		if (p1CurrentMoveId != p1LastMoveId || p2CurrentMoveId != p2LastMoveId) {
 
-	std::cout << "p2 move id: " << p2CurrentMoveId << std::endl;
-	std::cout << "p2 move anim length: " << p2AnimLength << std::endl;
-	std::cout << "p2 move connects?: " << p2CurrentMoveConnects << std::endl;
-	std::cout << "p2 frame advantage: " << p2FrameAdvantage << std::endl;
+			system("cls");
+
+			string plusSymbol = "";
+			if (p1FrameAdvantage > 0) {
+				plusSymbol = "+";
+			}
+
+			std::cout << "p1 move id: " << p1CurrentMoveId << std::endl;
+			std::cout << "p1 active frames: " << p1CurrentMove.first_active_frame << " - " << p1CurrentMove.last_active_frame << std::endl;
+			std::cout << "p1 frame advantage: " << plusSymbol << p1FrameAdvantage << std::endl;
+			std::cout << "p1 move anim length: " << p1AnimLength << std::endl;
+			std::cout << "p1 move connects?: " << p1CurrentMoveConnects << std::endl;
+			std::cout << "------------------------------ " << std::endl;
+
+			std::cout << "p2 move id: " << p2CurrentMoveId << std::endl;
+			//std::cout << "p2 active frames: " << p2CurrentMove.first_active_frame << " - " << p2CurrentMove.last_active_frame << std::endl;
+			std::cout << "p2 frame advantage: " << p2FrameAdvantage << std::endl;
+			std::cout << "p2 move anim length: " << p2AnimLength << std::endl;
+			std::cout << "p2 move connects?: " << p2CurrentMoveConnects << std::endl;
+			std::cout << "============================== " << std::endl;
+
+			p1LastMoveId = p1CurrentMoveId;
+			p2LastMoveId = p2CurrentMoveId;
+		}
+
+	}
+
+	
   
 }
 
-int main()
-{
 
-	T5DROverlay t5DROverlay;
-
-	t5DROverlay.AttachToProcess();
-	t5DROverlay.QueryCurrentMoveInfo();
-	t5DROverlay.QueryMovelistP1();
-	t5DROverlay.DisplayOverlayInfo();
-
-	std::cin.get();
+void T5DROverlay::SetFirstRunFalse() {
+	isFirstRun = false;
 }
-
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
-
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
