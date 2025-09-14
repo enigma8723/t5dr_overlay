@@ -198,21 +198,26 @@ void T5DROverlay::DisplayOverlayInfo() {
 
 			system("cls");
 
-			string plusSymbol = "";
+			string p1PlusSymbol = "";
 			if (p1FrameAdvantage > 0) {
-				plusSymbol = "+";
+				p1PlusSymbol = "+";
+			}
+
+			string p2PlusSymbol = "";
+			if (p2FrameAdvantage > 0) {
+				p2PlusSymbol = "+";
 			}
 
 			std::cout << "p1 move id: " << p1CurrentMoveId << std::endl;
 			std::cout << "p1 active frames: " << p1CurrentMove.first_active_frame << " - " << p1CurrentMove.last_active_frame << std::endl;
-			std::cout << "p1 frame advantage: " << plusSymbol << p1FrameAdvantage << std::endl;
+			std::cout << "p1 frame advantage: " << p1PlusSymbol << p1FrameAdvantage << std::endl;
 			std::cout << "p1 move anim length: " << p1AnimLength << std::endl;
 			std::cout << "p1 move connects?: " << p1CurrentMoveConnects << std::endl;
 			std::cout << "------------------------------ " << std::endl;
 
 			std::cout << "p2 move id: " << p2CurrentMoveId << std::endl;
 			//std::cout << "p2 active frames: " << p2CurrentMove.first_active_frame << " - " << p2CurrentMove.last_active_frame << std::endl;
-			std::cout << "p2 frame advantage: " << p2FrameAdvantage << std::endl;
+			std::cout << "p2 frame advantage: " << p2PlusSymbol << p2FrameAdvantage << std::endl;
 			std::cout << "p2 move anim length: " << p2AnimLength << std::endl;
 			std::cout << "p2 move connects?: " << p2CurrentMoveConnects << std::endl;
 			std::cout << "============================== " << std::endl;
