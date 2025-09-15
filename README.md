@@ -2,7 +2,7 @@ The project is work in progress.
 
 It is a console application that reads out the game's memory contents. You can use it to display the frame data for p1's moves.
 
-![Alt text](screenshot.png)
+![Screenshot]([screenshot.png](https://github.com/enigma8723/t5dr_overlay/blob/main/Screenshot.png))
 
 Only NPEA00019 is supported.
 
