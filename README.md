@@ -29,6 +29,7 @@ Planned improvements:
 - display of frame data when a p2 move connects with p1
 - frame (dis)advantage based on which active frame the move connected on (if I can find the memory address at which this is being kept track of)
 - a proper overlay instead of a console application
+- improving performance of the memory readout (currently when you do a string and input the command for it fast, e.g. 1,2, the frame data from 1 might not be printed out because the logic doesn't manage to read out 1 in time before 2 becomes relevant)
 
 
 Acknowledgements:
