@@ -34,5 +34,5 @@ Planned improvements:
 Acknowledgements:
 - A big thank you to Kiloutre who created the Tekken Moveset Extractor and provided its source code here on github (https://github.com/Kiloutre/TKMovesets). To make this console application I analyzed the relevant parts of his tool and used what I learned to write my own condensed code as well as used some small part of his logic, types, classes and helper functions.
   Without his work I couldn't have done it!
-- A big thank you also to T-vk who created a short, easy to use class to attach to processes and read out their memory. His class is used in the console application to do just that.
+- A big thank you also to T-vk who created a short, easy to use class to attach to processes and read out their memory (https://github.com/T-vK/Memory-Hacking-Class). His class is used in the console application to do just that.
 - Thank you talso to RASKALOF ОНЛИФАНСУ from Discord who gave me the idea to implement my own overlay (he has made one before me; more pretty too :)).
