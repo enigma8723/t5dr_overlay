@@ -1,4 +1,4 @@
-// T5DR_Overlay.cpp : This file contains the 'main' function. Program execution begins and ends there.
+// T5DR_Overlay.cpp
 //
 
 #include <iostream>

@@ -8,6 +8,7 @@ typedef uint32_t gameAddr32;
 
 typedef unsigned char Byte;
 
+// Taken from: https://github.com/Kiloutre/TKMovesets
 struct Move
 {
 	gameAddr32 name_addr;

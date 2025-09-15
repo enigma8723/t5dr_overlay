@@ -11,28 +11,32 @@
       "RelativeMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|solutionrelative:Types.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|I:\\Programming\\T5DR_Overlay\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|solutionrelative:main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|I:\\Programming\\T5DR_Overlay\\T5DR_Overlay.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|solutionrelative:T5DR_Overlay.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|I:\\Programming\\T5DR_Overlay\\Helpers.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|solutionrelative:Helpers.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|I:\\Programming\\T5DR_Overlay\\Memory.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|solutionrelative:Memory.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+      "AbsoluteMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|I:\\Programming\\T5DR_Overlay\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|solutionrelative:main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|I:\\Programming\\T5DR_Overlay\\Memory.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|solutionrelative:Memory.hpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|I:\\Programming\\T5DR_Overlay\\Memory.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|solutionrelative:Memory.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|I:\\Programming\\T5DR_Overlay\\T5DR_Overlay.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|solutionrelative:T5DR_Overlay.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|I:\\Programming\\T5DR_Overlay\\GameAdresses.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|solutionrelative:GameAdresses.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|I:\\Programming\\T5DR_Overlay\\Helpers.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|solutionrelative:Helpers.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -42,19 +46,46 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 7,
+          "SelectedChildIndex": 8,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
+              "Title": "Types.h",
+              "DocumentMoniker": "I:\\Programming\\T5DR_Overlay\\Types.h",
+              "RelativeDocumentMoniker": "Types.h",
+              "ToolTip": "I:\\Programming\\T5DR_Overlay\\Types.h",
+              "RelativeToolTip": "Types.h",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAoAAAAPAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2025-09-12T14:17:27.11Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 8,
+              "Title": "Helpers.cpp",
+              "DocumentMoniker": "I:\\Programming\\T5DR_Overlay\\Helpers.cpp",
+              "RelativeDocumentMoniker": "Helpers.cpp",
+              "ToolTip": "I:\\Programming\\T5DR_Overlay\\Helpers.cpp",
+              "RelativeToolTip": "Helpers.cpp",
+              "ViewState": "AgIAAA8AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-09-15T15:30:16.768Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 3,
               "Title": "main.cpp",
               "DocumentMoniker": "I:\\Programming\\T5DR_Overlay\\main.cpp",
               "RelativeDocumentMoniker": "main.cpp",
               "ToolTip": "I:\\Programming\\T5DR_Overlay\\main.cpp",
               "RelativeToolTip": "main.cpp",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABIAAAAhAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAACAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-09-14T10:56:17.313Z"
+              "WhenOpened": "2025-09-14T10:56:17.313Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -64,13 +95,14 @@
               "RelativeDocumentMoniker": "Memory.cpp",
               "ToolTip": "I:\\Programming\\T5DR_Overlay\\Memory.cpp",
               "RelativeToolTip": "Memory.cpp",
-              "ViewState": "AgIAAIwAAAAAAAAAAAAuwKUAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAKUAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
-              "WhenOpened": "2025-09-12T15:09:36.991Z"
+              "WhenOpened": "2025-09-12T15:09:36.991Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 6,
+              "DocumentIndex": 4,
               "Title": "Memory.hpp",
               "DocumentMoniker": "I:\\Programming\\T5DR_Overlay\\Memory.hpp",
               "RelativeDocumentMoniker": "Memory.hpp",
@@ -78,7 +110,8 @@
               "RelativeToolTip": "Memory.hpp",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABgAAAAJAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-09-12T15:09:02.153Z"
+              "WhenOpened": "2025-09-12T15:09:02.153Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -90,43 +123,34 @@
               "RelativeToolTip": "GameAdresses.h",
               "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAsAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-09-12T14:45:02.791Z"
+              "WhenOpened": "2025-09-12T14:45:02.791Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 2,
               "Title": "Helpers.h",
               "DocumentMoniker": "I:\\Programming\\T5DR_Overlay\\Helpers.h",
               "RelativeDocumentMoniker": "Helpers.h",
               "ToolTip": "I:\\Programming\\T5DR_Overlay\\Helpers.h",
               "RelativeToolTip": "Helpers.h",
-              "ViewState": "AgIAACQAAAAAAAAAAAAAAD8AAAAIAAAAAAAAAA==",
+              "ViewState": "AgIAADMAAAAAAAAAAAAAAD8AAAAIAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-09-12T14:21:53.468Z"
+              "WhenOpened": "2025-09-12T14:21:53.468Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "Types.h",
-              "DocumentMoniker": "I:\\Programming\\T5DR_Overlay\\Types.h",
-              "RelativeDocumentMoniker": "Types.h",
-              "ToolTip": "I:\\Programming\\T5DR_Overlay\\Types.h",
-              "RelativeToolTip": "Types.h",
-              "ViewState": "AgIAAAYAAAAAAAAAAAAAAAcAAAAAAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-09-12T14:17:27.11Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 6,
               "Title": "T5DR_Overlay.h",
               "DocumentMoniker": "I:\\Programming\\T5DR_Overlay\\T5DR_Overlay.h",
               "RelativeDocumentMoniker": "T5DR_Overlay.h",
               "ToolTip": "I:\\Programming\\T5DR_Overlay\\T5DR_Overlay.h",
               "RelativeToolTip": "T5DR_Overlay.h",
-              "ViewState": "AgIAABUAAAAAAAAAAAAAADwAAAABAAAAAAAAAA==",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAAADwAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-09-12T14:18:47.773Z"
+              "WhenOpened": "2025-09-12T14:18:47.773Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -136,7 +160,7 @@
               "RelativeDocumentMoniker": "T5DR_Overlay.cpp",
               "ToolTip": "I:\\Programming\\T5DR_Overlay\\T5DR_Overlay.cpp",
               "RelativeToolTip": "T5DR_Overlay.cpp",
-              "ViewState": "AgIAAMIAAAAAAAAAAAAlwNsAAAA2AAAAAAAAAA==",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAA0AAAAcAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-09-12T14:04:14.836Z",
               "EditorCaption": ""
