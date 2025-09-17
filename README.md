@@ -33,9 +33,12 @@ Planned improvements:
 - a proper overlay instead of a console application
 - improving performance of the memory readout (currently when you do a string and input the command for it fast, e.g. 1,2, the frame data from 1 might not be printed out because the logic doesn't manage to read out 1 in time before 2 becomes relevant)
 
+Important:
+- Please only use this tool in practice mode. Don't use it to cheat online.
 
 Acknowledgements:
 - A big thank you to Kiloutre who created the Tekken Moveset Extractor and provided its source code here on github (https://github.com/Kiloutre/TKMovesets). To make this console application I analyzed the relevant parts of his tool and used what I learned to write my own condensed code as well as used some small part of his logic, types, classes and helper functions.
   Without his work I couldn't have done it!
 - A big thank you also to T-vk who created a short, easy to use class to attach to processes and read out their memory (https://github.com/T-vK/Memory-Hacking-Class). His class is used in the console application to do just that.
-- Thank you talso to RASKALOF ОНЛИФАНСУ from Discord who gave me the idea to implement my own overlay (he has made one before me; more pretty too :)).
+- A big thank you to Bandai Namco and Harada for making the game. I think this project doesn't violate any EULA or copyrights. It doesn't use any copyrighted material inside the source code and only reads out the game's memory to display frame data. I only put this project up to help the veteran Tekken players out. Should there be any questions though, Bandai Namco may please contact me.
+- Thank you also to RASKALOF ОНЛИФАНСУ from Discord who gave me the idea to implement my own overlay (he has made one before me; more pretty too :)).
