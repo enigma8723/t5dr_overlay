@@ -84,7 +84,8 @@ void T5DROverlay::QueryMovelistP1() {
 	gameAddr p1MovesPropertiesCountAddress = gameAddresses.rpcs3_addr + p1MovesetTOCAddress + t5drAddresses.t5_moveset_toc_moves_adress_offset + 0x4;
 
 	// Read moveset properties address at pointer. Read moveset properties count.
-	gameAddr p1MovesPropertiesAdress = gameAddresses.rpcs3_addr + memory.ReadInt(processHandle, p1MovesPropertiesPointerAddress, 4);
+	// Changed return type to int because for some characters (e.g. Bryan) the value at the address is negative before the conversion to little endian.
+	int p1MovesPropertiesAdress = memory.ReadInt(processHandle, p1MovesPropertiesPointerAddress, 4);
 	moveCount = memory.ReadInt(processHandle, p1MovesPropertiesCountAddress, 4);
 
 	// Address and count will be in big endian. Needs to be swapped to little endian.
@@ -96,7 +97,7 @@ void T5DROverlay::QueryMovelistP1() {
 	p1MovesetBlock = (Byte*)malloc(moveCount * moveSize);
 
 	// Read whole moveset properties.
-	memory.ReadBytes(processHandle, p1MovesetBlock, p1MovesPropertiesAdress, moveCount * moveSize);
+	memory.ReadBytes(processHandle, p1MovesetBlock, gameAddresses.rpcs3_addr + p1MovesPropertiesAdress, moveCount * moveSize);
 
 	// Go through moveset properties and convert big endian to little endian.
 	for (auto& move : StructIterator<Move>(p1MovesetBlock, moveCount))
