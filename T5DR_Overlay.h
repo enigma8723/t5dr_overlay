@@ -1,5 +1,8 @@
 #pragma once
 
+
+#include <map>
+
 #include "Types.h"
 #include "Memory.hpp"
 
@@ -26,6 +29,9 @@ private:
 	uint16_t p2AnimLength;
 	uint32_t p2CurrentMoveConnects;
 	uint32_t p2LastMoveConnected;
+
+	// Create dictionary for mapping the move ids to the moves.
+	std::map<uint16_t, Move> movesMap_p1;
 
 	bool isFirstRun;
 
@@ -55,6 +61,7 @@ public:
 
 	void QueryCurrentMoveInfo();
 	void QueryMovelistP1();
+	void CreateMovelistMap();
 
 	void DisplayOverlayInfo();
 

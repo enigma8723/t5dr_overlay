@@ -10,6 +10,7 @@ int main()
 
 	t5DROverlay.AttachToProcess();
 	t5DROverlay.QueryMovelistP1();
+	t5DROverlay.CreateMovelistMap();
 
 	// The logic is too slow to catch cancels that happen fast.
 	// E.g. When Lili's 1,2 is inputted fast, only the frame data for 2 is displayed

@@ -139,21 +139,23 @@ void T5DROverlay::QueryMovelistP1() {
 
 }
 
-// enigma start: display move id and name with move props
-// The move ids in the editor and also at memory address 3100909A8 are just the locations of the moves in the movelist (first move is 0, second is 1, third is 2 and so on).
-// Exceptions: Standing anim (32769) and crouching anim (32770).
-void T5DROverlay::DisplayOverlayInfo() {
-	
+void T5DROverlay::CreateMovelistMap() {
 	uint16_t assignedMoveId = 0;
 
-	// Create dictionary for mapping the move ids to the moves.
-	std::map<uint16_t, Move> movesMap_p1;
 
 	for (auto& move : StructIterator<Move>(p1MovesetBlock, moveCount))
 	{
 		movesMap_p1[assignedMoveId] = move;
 		assignedMoveId++;
 	}
+}
+
+// enigma start: display move id and name with move props
+// The move ids in the editor and also at memory address 3100909A8 are just the locations of the moves in the movelist (first move is 0, second is 1, third is 2 and so on).
+// Exceptions: Standing anim (32769) and crouching anim (32770).
+void T5DROverlay::DisplayOverlayInfo() {
+	
+
 
 	uint16_t p1CurrentMoveIdCorrected = p1CurrentMoveId;
 	uint16_t p2CurrentMoveIdCorrected = p2CurrentMoveId;
