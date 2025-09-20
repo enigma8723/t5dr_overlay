@@ -64,7 +64,8 @@ void T5DROverlay::QueryMovelistForPlayer(Player& player, gameAddr relPlayerAddre
 	gameAddr playerMovesetTOCPointerAddress = playerAddress + t5drAddresses.t5_moveset_toc_address_offset;
 
 	// Address of moveset table of contents.
-	gameAddr playerMovesetTOCAddress = memory.ReadInt(processHandle, playerMovesetTOCPointerAddress, 4);
+	// Changed return type to int because for some characters (e.g. Bryan) the value at the address is negative before the conversion to little endian.
+	int playerMovesetTOCAddress = memory.ReadInt(processHandle, playerMovesetTOCPointerAddress, 4);
 
 	// Address will be in little endian. Needs to be swapped to big endian.
 	ByteswapHelpers::SWAP_INT32(&playerMovesetTOCAddress);
@@ -133,7 +134,7 @@ void T5DROverlay::QueryMovelists() {
 	T5DRAddresses t5drAddresses;
 
 	QueryMovelistForPlayer(p1, t5drAddresses.t5dr_p1_addr);
-	//QueryMovelistForPlayer(p2, t5drAddresses.t5dr_p1_addr + t5drAddresses.t5_playerstruct_size_offset);
+	QueryMovelistForPlayer(p2, t5drAddresses.t5dr_p1_addr + t5drAddresses.t5_playerstruct_size_offset);
 }
 
 void T5DROverlay::CreateMovelistMapForPlayer(Player & player) {
@@ -150,7 +151,7 @@ void T5DROverlay::CreateMovelistMapForPlayer(Player & player) {
 
 void T5DROverlay::CreateMovelistMap() {
 	CreateMovelistMapForPlayer(p1);
-	//CreateMovelistMapForPlayer(p2);
+	CreateMovelistMapForPlayer(p2);
 }
 
 
@@ -222,7 +223,7 @@ void T5DROverlay::DisplayOverlayInfoForPlayer(Player& attacker, Player& defender
 void T5DROverlay::DisplayOverlayInfo() {
 	
 	DisplayOverlayInfoForPlayer(p1, p2);	
-	//DisplayOverlayInfoForPlayer(p2, p1);
+	DisplayOverlayInfoForPlayer(p2, p1);
 }
 
 
