@@ -52,3 +52,12 @@ struct Player {
 	// Create dictionary for mapping the move ids to the moves.
 	std::map<uint16_t, Move> movesMap;
 };
+
+struct OverlayData {
+	uint16_t currentMoveId;
+	uint16_t firstActiveFrame;
+	uint16_t lastActiveFrame;
+	int16_t frameAdvantage;
+	uint32_t animLength;
+	uint32_t currentMoveConnects;
+};

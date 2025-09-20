@@ -155,9 +155,9 @@ void T5DROverlay::CreateMovelistMap() {
 }
 
 
-void T5DROverlay::DisplayOverlayInfoForPlayer(Player& attacker, Player& defender) {
+void T5DROverlay::DisplayOverlayInfoForPlayer(Player& attacker, Player& defender, OverlayData& overlayData) {
 
-	if (attacker.currentMoveConnects != 0) {
+
 
 		uint16_t attackerCurrentMoveIdCorrected = attacker.currentMoveId;
 		uint16_t defenderCurrentMoveIdCorrected = defender.currentMoveId;
@@ -181,10 +181,11 @@ void T5DROverlay::DisplayOverlayInfoForPlayer(Player& attacker, Player& defender
 		// If p1 move connects, p1 move has a hitbox and p2 is not executing the same move as before (e.g. first p1 move was blocked, now it hits).
 		if (attackerCurrentMove.hitbox_location != 0) {
 			// @todo: first_active_frame needs to be changed to the frame the move hit on.
-			attackerFrameAdvantage = defender.animLength - (attacker.animLength - attackerCurrentMove.first_active_frame);
-			defenderFrameAdvantage = attackerFrameAdvantage * -1;
-
-			system("cls");
+			// @todo: don't show frame advantage on whiff
+			//if (attacker.currentMoveConnects != 0) {
+				attackerFrameAdvantage = defender.animLength - (attacker.animLength - attackerCurrentMove.first_active_frame);
+				defenderFrameAdvantage = attackerFrameAdvantage * -1;
+			//}
 
 			string attackerPlusSymbol = "";
 			if (attackerFrameAdvantage > 0) {
@@ -196,23 +197,31 @@ void T5DROverlay::DisplayOverlayInfoForPlayer(Player& attacker, Player& defender
 				defenderPlusSymbol = "+";
 			}
 
+			overlayData.currentMoveId = attacker.currentMoveId;
+			overlayData.firstActiveFrame = attackerCurrentMove.first_active_frame;
+			overlayData.lastActiveFrame = attackerCurrentMove.last_active_frame;
+			overlayData.frameAdvantage = attackerFrameAdvantage;
+			overlayData.animLength = attacker.animLength;
+			overlayData.currentMoveConnects = attacker.currentMoveConnects;
+
+			/*
 			std::cout << "p1 move id: " << attacker.currentMoveId << std::endl;
 			std::cout << "p1 active frames: " << attackerCurrentMove.first_active_frame << " - " << attackerCurrentMove.last_active_frame << std::endl;
 			std::cout << "p1 frame advantage: " << attackerPlusSymbol << attackerFrameAdvantage << std::endl;
 			std::cout << "p1 move anim length: " << attacker.animLength << std::endl;
 			std::cout << "p1 move connects?: " << attacker.currentMoveConnects << std::endl;
 			std::cout << "------------------------------ " << std::endl;
-
+			
 			std::cout << "p2 move id: " << defender.currentMoveId << std::endl;
 			std::cout << "p2 frame advantage: " << defenderPlusSymbol << defenderFrameAdvantage << std::endl;
 			std::cout << "p2 move anim length: " << defender.animLength << std::endl;
 			std::cout << "p2 move connects?: " << defender.currentMoveConnects << std::endl;
 			std::cout << "============================== " << std::endl;
+				*/
 
 			attacker.lastMoveId = attacker.currentMoveId;
 			defender.lastMoveId = defender.currentMoveId;
 		}
-	}
 
 }
 
@@ -220,10 +229,10 @@ void T5DROverlay::DisplayOverlayInfoForPlayer(Player& attacker, Player& defender
 // enigma start: display move id and name with move props
 // The move ids in the editor and also at memory address 3100909A8 are just the locations of the moves in the movelist (first move is 0, second is 1, third is 2 and so on).
 // Exceptions: Standing anim (32769) and crouching anim (32770).
-void T5DROverlay::DisplayOverlayInfo() {
+void T5DROverlay::DisplayOverlayInfo(OverlayData& p1OverlayData, OverlayData& p2OverlayData) {
 	
-	DisplayOverlayInfoForPlayer(p1, p2);	
-	DisplayOverlayInfoForPlayer(p2, p1);
+	DisplayOverlayInfoForPlayer(p1, p2, p1OverlayData);
+	DisplayOverlayInfoForPlayer(p2, p1, p2OverlayData);
 }
 
 
