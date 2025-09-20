@@ -159,48 +159,32 @@ void T5DROverlay::CreateMovelistMap() {
 
 void T5DROverlay::DisplayOverlayInfoForPlayer(Player& attacker, Player& defender) {
 
+	if (attacker.currentMoveConnects != 0) {
 
-	uint16_t attackerCurrentMoveIdCorrected = attacker.currentMoveId;
-	uint16_t defenderCurrentMoveIdCorrected = defender.currentMoveId;
+		uint16_t attackerCurrentMoveIdCorrected = attacker.currentMoveId;
+		uint16_t defenderCurrentMoveIdCorrected = defender.currentMoveId;
 
-	// Standing anim gets reporting as 32769 but has move id 0.
-	if (attacker.currentMoveId == 32769) {
-		attackerCurrentMoveIdCorrected = 0;
-	}
+		// Standing anim gets reporting as 32769 but has move id 0.
+		if (attacker.currentMoveId == 32769) {
+			attackerCurrentMoveIdCorrected = 0;
+		}
 
-	// Crouching anim gets reporting as 32770 but has an unknown move id. @todo: Find correct move id for crouching anim.
-	if (attacker.currentMoveId == 32770) {
-		attackerCurrentMoveIdCorrected = 0;
-	}
+		// Crouching anim gets reporting as 32770 but has an unknown move id. @todo: Find correct move id for crouching anim.
+		if (attacker.currentMoveId == 32770) {
+			attackerCurrentMoveIdCorrected = 0;
+		}
 
-	Move attackerCurrentMove = attacker.movesMap.at(attackerCurrentMoveIdCorrected);
+		Move attackerCurrentMove = attacker.movesMap.at(attackerCurrentMoveIdCorrected);
 
-	int16_t attackerFrameAdvantage = 0;
-	int16_t defenderFrameAdvantage = 0;
+		int16_t attackerFrameAdvantage = 0;
+		int16_t defenderFrameAdvantage = 0;
 
-	// @todo: Add frame data overlay for p2.
-	// If p1 move connects, p1 move has a hitbox and p2 is not executing the same move as before (e.g. first p1 move was blocked, now it hits).
-	if (attacker.currentMoveConnects != 0 && attackerCurrentMove.hitbox_location != 0 && defender.currentMoveId != defender.lastMoveId) {
-
-		if (attacker.currentMoveConnects != 0 && defender.currentMoveConnects == 0) {
+		// @todo: Add frame data overlay for p2.
+		// If p1 move connects, p1 move has a hitbox and p2 is not executing the same move as before (e.g. first p1 move was blocked, now it hits).
+		if (attackerCurrentMove.hitbox_location != 0) {
 			// @todo: first_active_frame needs to be changed to the frame the move hit on.
 			attackerFrameAdvantage = defender.animLength - (attacker.animLength - attackerCurrentMove.first_active_frame);
 			defenderFrameAdvantage = attackerFrameAdvantage * -1;
-		}
-		else {
-			/*
-			if (p1CurrentMoveConnects == 0 && p2CurrentMoveConnects != 0) {
-				# @todo: there is no map for player 2 right now because there is no movesetBlock for player 2.
-				frameAdvantage = p1AnimLength - (p2AnimLength - movesMap_p2.at(p2CurrentMoveId).first_active_frame);
-			}
-			// both players' attacks connect.
-			else {
-				frameAdvantage = p2AnimLength - p1AnimLength;
-			}
-			*/
-		}
-
-		if (attacker.currentMoveId != attacker.lastMoveId || defender.currentMoveId != defender.lastMoveId) {
 
 			system("cls");
 
@@ -222,7 +206,6 @@ void T5DROverlay::DisplayOverlayInfoForPlayer(Player& attacker, Player& defender
 			std::cout << "------------------------------ " << std::endl;
 
 			std::cout << "p2 move id: " << defender.currentMoveId << std::endl;
-			//std::cout << "p2 active frames: " << p2CurrentMove.first_active_frame << " - " << p2CurrentMove.last_active_frame << std::endl;
 			std::cout << "p2 frame advantage: " << defenderPlusSymbol << defenderFrameAdvantage << std::endl;
 			std::cout << "p2 move anim length: " << defender.animLength << std::endl;
 			std::cout << "p2 move connects?: " << defender.currentMoveConnects << std::endl;
@@ -231,7 +214,6 @@ void T5DROverlay::DisplayOverlayInfoForPlayer(Player& attacker, Player& defender
 			attacker.lastMoveId = attacker.currentMoveId;
 			defender.lastMoveId = defender.currentMoveId;
 		}
-
 	}
 
 }
@@ -243,7 +225,7 @@ void T5DROverlay::DisplayOverlayInfoForPlayer(Player& attacker, Player& defender
 void T5DROverlay::DisplayOverlayInfo() {
 	
 	DisplayOverlayInfoForPlayer(p1, p2);	
-  
+	//DisplayOverlayInfoForPlayer(p2, p1);  // Needs implementation of QueryMovelistP2()
 }
 
 
