@@ -36,21 +36,21 @@ void T5DROverlay::QueryCurrentMoveInfo() {
 	gameAddr p2CurrentMoveAddress = p2Address + t5drAddresses.t5_currmove_id_offset;
 	gameAddr p2CurrentMoveConnectsAddress = gameAddresses.rpcs3_addr + t5drAddresses.t5dr_p2_attack_connects_addr;
 
-	p1CurrentMoveId = (uint16_t) memory.ReadInt(processHandle, p1CurrentMoveAddress, 2);
-	p1AnimLength = (uint16_t) memory.ReadInt(processHandle, p1AnimLengthAddress, 2);
-	p1CurrentMoveConnects = memory.ReadInt(processHandle, p1CurrentMoveConnectsAddress, 4);
+	p1.currentMoveId = (uint16_t) memory.ReadInt(processHandle, p1CurrentMoveAddress, 2);
+	p1.animLength = (uint16_t) memory.ReadInt(processHandle, p1AnimLengthAddress, 2);
+	p1.currentMoveConnects = memory.ReadInt(processHandle, p1CurrentMoveConnectsAddress, 4);
 
-	p2CurrentMoveId = (uint16_t)memory.ReadInt(processHandle, p2CurrentMoveAddress, 2);
-	p2AnimLength = (uint16_t)memory.ReadInt(processHandle, p2AnimLengthAddress, 2);
-	p2CurrentMoveConnects = memory.ReadInt(processHandle, p2CurrentMoveConnectsAddress, 4);
+	p2.currentMoveId = (uint16_t)memory.ReadInt(processHandle, p2CurrentMoveAddress, 2);
+	p2.animLength = (uint16_t)memory.ReadInt(processHandle, p2AnimLengthAddress, 2);
+	p2.currentMoveConnects = memory.ReadInt(processHandle, p2CurrentMoveConnectsAddress, 4);
 
-	ByteswapHelpers::SWAP_INT16(&p1CurrentMoveId);
-	ByteswapHelpers::SWAP_INT16(&p1AnimLength);
-	ByteswapHelpers::SWAP_INT32(&p1CurrentMoveConnects);
+	ByteswapHelpers::SWAP_INT16(&p1.currentMoveId);
+	ByteswapHelpers::SWAP_INT16(&p1.animLength);
+	ByteswapHelpers::SWAP_INT32(&p1.currentMoveConnects);
 
-	ByteswapHelpers::SWAP_INT16(&p2CurrentMoveId);
-	ByteswapHelpers::SWAP_INT16(&p2AnimLength);
-	ByteswapHelpers::SWAP_INT32(&p2CurrentMoveConnects);
+	ByteswapHelpers::SWAP_INT16(&p2.currentMoveId);
+	ByteswapHelpers::SWAP_INT16(&p2.animLength);
+	ByteswapHelpers::SWAP_INT32(&p2.currentMoveConnects);
 
 	// moved to function: DisplayOverlayInfo()
 	/*std::cout << "p1 move id: " << p1CurrentMoveId << std::endl;
@@ -139,50 +139,53 @@ void T5DROverlay::QueryMovelistP1() {
 
 }
 
-void T5DROverlay::CreateMovelistMap() {
+void T5DROverlay::CreateMovelistMapForPlayer(Player & player) {
 	uint16_t assignedMoveId = 0;
 
 
 	for (auto& move : StructIterator<Move>(p1MovesetBlock, moveCount))
 	{
-		movesMap_p1[assignedMoveId] = move;
+		player.movesMap[assignedMoveId] = move;
 		assignedMoveId++;
 	}
 }
 
-// enigma start: display move id and name with move props
-// The move ids in the editor and also at memory address 3100909A8 are just the locations of the moves in the movelist (first move is 0, second is 1, third is 2 and so on).
-// Exceptions: Standing anim (32769) and crouching anim (32770).
-void T5DROverlay::DisplayOverlayInfo() {
-	
+
+void T5DROverlay::CreateMovelistMap() {
+	CreateMovelistMapForPlayer(p1);
+	CreateMovelistMapForPlayer(p2);
+}
 
 
-	uint16_t p1CurrentMoveIdCorrected = p1CurrentMoveId;
-	uint16_t p2CurrentMoveIdCorrected = p2CurrentMoveId;
+void T5DROverlay::DisplayOverlayInfoForPlayer(Player& attacker, Player& defender) {
+
+
+	uint16_t attackerCurrentMoveIdCorrected = attacker.currentMoveId;
+	uint16_t defenderCurrentMoveIdCorrected = defender.currentMoveId;
 
 	// Standing anim gets reporting as 32769 but has move id 0.
-	if (p1CurrentMoveId == 32769) {
-		p1CurrentMoveIdCorrected = 0;
+	if (attacker.currentMoveId == 32769) {
+		attackerCurrentMoveIdCorrected = 0;
 	}
 
 	// Crouching anim gets reporting as 32770 but has an unknown move id. @todo: Find correct move id for crouching anim.
-	if (p1CurrentMoveId == 32770) {
-		p1CurrentMoveIdCorrected = 0;
+	if (attacker.currentMoveId == 32770) {
+		attackerCurrentMoveIdCorrected = 0;
 	}
 
-	Move p1CurrentMove = movesMap_p1.at(p1CurrentMoveIdCorrected);
+	Move attackerCurrentMove = attacker.movesMap.at(attackerCurrentMoveIdCorrected);
 
-	int16_t p1FrameAdvantage = 0;
-	int16_t p2FrameAdvantage = 0;
+	int16_t attackerFrameAdvantage = 0;
+	int16_t defenderFrameAdvantage = 0;
 
 	// @todo: Add frame data overlay for p2.
 	// If p1 move connects, p1 move has a hitbox and p2 is not executing the same move as before (e.g. first p1 move was blocked, now it hits).
-	if (p1CurrentMoveConnects != 0 && p1CurrentMove.hitbox_location != 0 && p2CurrentMoveId != p2LastMoveId) {
+	if (attacker.currentMoveConnects != 0 && attackerCurrentMove.hitbox_location != 0 && defender.currentMoveId != defender.lastMoveId) {
 
-		if (p1CurrentMoveConnects != 0 && p2CurrentMoveConnects == 0) {
+		if (attacker.currentMoveConnects != 0 && defender.currentMoveConnects == 0) {
 			// @todo: first_active_frame needs to be changed to the frame the move hit on.
-			p1FrameAdvantage = p2AnimLength - (p1AnimLength - p1CurrentMove.first_active_frame);
-			p2FrameAdvantage = p1FrameAdvantage * -1;
+			attackerFrameAdvantage = defender.animLength - (attacker.animLength - attackerCurrentMove.first_active_frame);
+			defenderFrameAdvantage = attackerFrameAdvantage * -1;
 		}
 		else {
 			/*
@@ -197,41 +200,49 @@ void T5DROverlay::DisplayOverlayInfo() {
 			*/
 		}
 
-		if (p1CurrentMoveId != p1LastMoveId || p2CurrentMoveId != p2LastMoveId) {
+		if (attacker.currentMoveId != attacker.lastMoveId || defender.currentMoveId != defender.lastMoveId) {
 
 			system("cls");
 
-			string p1PlusSymbol = "";
-			if (p1FrameAdvantage > 0) {
-				p1PlusSymbol = "+";
+			string attackerPlusSymbol = "";
+			if (attackerFrameAdvantage > 0) {
+				attackerPlusSymbol = "+";
 			}
 
-			string p2PlusSymbol = "";
-			if (p2FrameAdvantage > 0) {
-				p2PlusSymbol = "+";
+			string defenderPlusSymbol = "";
+			if (defenderFrameAdvantage > 0) {
+				defenderPlusSymbol = "+";
 			}
 
-			std::cout << "p1 move id: " << p1CurrentMoveId << std::endl;
-			std::cout << "p1 active frames: " << p1CurrentMove.first_active_frame << " - " << p1CurrentMove.last_active_frame << std::endl;
-			std::cout << "p1 frame advantage: " << p1PlusSymbol << p1FrameAdvantage << std::endl;
-			std::cout << "p1 move anim length: " << p1AnimLength << std::endl;
-			std::cout << "p1 move connects?: " << p1CurrentMoveConnects << std::endl;
+			std::cout << "p1 move id: " << attacker.currentMoveId << std::endl;
+			std::cout << "p1 active frames: " << attackerCurrentMove.first_active_frame << " - " << attackerCurrentMove.last_active_frame << std::endl;
+			std::cout << "p1 frame advantage: " << attackerPlusSymbol << attackerFrameAdvantage << std::endl;
+			std::cout << "p1 move anim length: " << attacker.animLength << std::endl;
+			std::cout << "p1 move connects?: " << attacker.currentMoveConnects << std::endl;
 			std::cout << "------------------------------ " << std::endl;
 
-			std::cout << "p2 move id: " << p2CurrentMoveId << std::endl;
+			std::cout << "p2 move id: " << defender.currentMoveId << std::endl;
 			//std::cout << "p2 active frames: " << p2CurrentMove.first_active_frame << " - " << p2CurrentMove.last_active_frame << std::endl;
-			std::cout << "p2 frame advantage: " << p2PlusSymbol << p2FrameAdvantage << std::endl;
-			std::cout << "p2 move anim length: " << p2AnimLength << std::endl;
-			std::cout << "p2 move connects?: " << p2CurrentMoveConnects << std::endl;
+			std::cout << "p2 frame advantage: " << defenderPlusSymbol << defenderFrameAdvantage << std::endl;
+			std::cout << "p2 move anim length: " << defender.animLength << std::endl;
+			std::cout << "p2 move connects?: " << defender.currentMoveConnects << std::endl;
 			std::cout << "============================== " << std::endl;
 
-			p1LastMoveId = p1CurrentMoveId;
-			p2LastMoveId = p2CurrentMoveId;
+			attacker.lastMoveId = attacker.currentMoveId;
+			defender.lastMoveId = defender.currentMoveId;
 		}
 
 	}
 
+}
+
+
+// enigma start: display move id and name with move props
+// The move ids in the editor and also at memory address 3100909A8 are just the locations of the moves in the movelist (first move is 0, second is 1, third is 2 and so on).
+// Exceptions: Standing anim (32769) and crouching anim (32770).
+void T5DROverlay::DisplayOverlayInfo() {
 	
+	DisplayOverlayInfoForPlayer(p1, p2);	
   
 }
 

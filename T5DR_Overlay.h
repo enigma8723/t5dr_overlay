@@ -1,7 +1,7 @@
 #pragma once
 
 
-#include <map>
+
 
 #include "Types.h"
 #include "Memory.hpp"
@@ -18,23 +18,12 @@ private:
 	Byte* p1MovesetBlock;
 	uint32_t moveCount;
 
-	uint16_t p1CurrentMoveId;
-	uint16_t p1LastMoveId;
-	uint16_t p1AnimLength;
-	uint32_t p1CurrentMoveConnects;
-	uint32_t p1LastMoveConnected;
-
-	uint16_t p2CurrentMoveId;
-	uint16_t p2LastMoveId;
-	uint16_t p2AnimLength;
-	uint32_t p2CurrentMoveConnects;
-	uint32_t p2LastMoveConnected;
-
-	// Create dictionary for mapping the move ids to the moves.
-	std::map<uint16_t, Move> movesMap_p1;
+	Player p1, p2;
 
 	bool isFirstRun;
 
+	void CreateMovelistMapForPlayer(Player& player);
+	void DisplayOverlayInfoForPlayer(Player& attacker, Player& defender);
 
 public:
 
@@ -43,16 +32,8 @@ public:
 		memory{ Memory() },
 		p1MovesetBlock{ nullptr },
 		moveCount{ 0 },
-		p1CurrentMoveId{ 0 },
-		p1LastMoveId{ 0 },
-		p1AnimLength{ 0 },
-		p1CurrentMoveConnects{ 0 },
-		p1LastMoveConnected{ 0 },
-		p2CurrentMoveId{ 0 },
-		p2LastMoveId{ 0 },
-		p2AnimLength{ 0 },
-		p2CurrentMoveConnects{ 0 },
-		p2LastMoveConnected{ 0 },
+		p1{ 0 },
+		p2{ 0 },
 		isFirstRun { true }
 	{
 	};

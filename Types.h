@@ -2,6 +2,7 @@
 
 
 #include <stdint.h>
+#include <map>
 
 typedef uint64_t gameAddr;
 typedef uint32_t gameAddr32;
@@ -36,4 +37,14 @@ struct Move
 	uint16_t last_active_frame;
 	int16_t _0x6c_short;
 	uint16_t distance;
+};
+
+struct Player {
+	uint16_t currentMoveId;
+	uint16_t lastMoveId;
+	uint16_t animLength;
+	uint32_t currentMoveConnects;
+	uint32_t lastMoveConnected;
+	// Create dictionary for mapping the move ids to the moves.
+	std::map<uint16_t, Move> movesMap;
 };
