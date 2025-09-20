@@ -9,7 +9,7 @@ int main()
 	T5DROverlay t5DROverlay;
 
 	t5DROverlay.AttachToProcess();
-	t5DROverlay.QueryMovelistP1();
+	t5DROverlay.QueryMovelists();
 	t5DROverlay.CreateMovelistMap();
 
 	// The logic is too slow to catch cancels that happen fast.

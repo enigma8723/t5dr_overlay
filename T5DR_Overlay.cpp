@@ -52,55 +52,45 @@ void T5DROverlay::QueryCurrentMoveInfo() {
 	ByteswapHelpers::SWAP_INT16(&p2.animLength);
 	ByteswapHelpers::SWAP_INT32(&p2.currentMoveConnects);
 
-	// moved to function: DisplayOverlayInfo()
-	/*std::cout << "p1 move id: " << p1CurrentMoveId << std::endl;
-	std::cout << "p1 move anim length: " << p1AnimLength << std::endl;
-	std::cout << "p1 move connects?: " << p1CurrentMoveConnects << std::endl;
-
-	std::cout << "p2 move id: " << p2CurrentMoveId << std::endl;
-	std::cout << "p2 move anim length: " << p2AnimLength << std::endl;
-	std::cout << "p2 move connects?: " << p2CurrentMoveConnects << std::endl;*/
-
-	//std::cin.get();
 }
 
-void T5DROverlay::QueryMovelistP1() {
+void T5DROverlay::QueryMovelistForPlayer(Player& player, gameAddr relPlayerAddress) {
 	GameAddresses gameAddresses;
 	T5DRAddresses t5drAddresses;
 
-	gameAddr p1Address = gameAddresses.rpcs3_addr + t5drAddresses.t5dr_p1_addr;
+	gameAddr playerAddress = gameAddresses.rpcs3_addr + relPlayerAddress;
 
 	// Address in p1's object that holds the address of p1's moveset table of contents.
-	gameAddr p1MovesetTOCPointerAddress = p1Address + t5drAddresses.t5_moveset_toc_address_offset;
+	gameAddr playerMovesetTOCPointerAddress = playerAddress + t5drAddresses.t5_moveset_toc_address_offset;
 
 	// Address of moveset table of contents.
-	gameAddr p1MovesetTOCAddress = memory.ReadInt(processHandle, p1MovesetTOCPointerAddress, 4);
+	gameAddr playerMovesetTOCAddress = memory.ReadInt(processHandle, playerMovesetTOCPointerAddress, 4);
 
 	// Address will be in little endian. Needs to be swapped to big endian.
-	ByteswapHelpers::SWAP_INT32(&p1MovesetTOCAddress);
+	ByteswapHelpers::SWAP_INT32(&playerMovesetTOCAddress);
 
 	// Calculate address for pointer to moveset properties address. Also calculate address where moveset properties count is held.
-	gameAddr p1MovesPropertiesPointerAddress = gameAddresses.rpcs3_addr + p1MovesetTOCAddress + t5drAddresses.t5_moveset_toc_moves_adress_offset;
-	gameAddr p1MovesPropertiesCountAddress = gameAddresses.rpcs3_addr + p1MovesetTOCAddress + t5drAddresses.t5_moveset_toc_moves_adress_offset + 0x4;
+	gameAddr playerMovesPropertiesPointerAddress = gameAddresses.rpcs3_addr + playerMovesetTOCAddress + t5drAddresses.t5_moveset_toc_moves_adress_offset;
+	gameAddr playerMovesPropertiesCountAddress = gameAddresses.rpcs3_addr + playerMovesetTOCAddress + t5drAddresses.t5_moveset_toc_moves_adress_offset + 0x4;
 
 	// Read moveset properties address at pointer. Read moveset properties count.
 	// Changed return type to int because for some characters (e.g. Bryan) the value at the address is negative before the conversion to little endian.
-	int p1MovesPropertiesAdress = memory.ReadInt(processHandle, p1MovesPropertiesPointerAddress, 4);
-	moveCount = memory.ReadInt(processHandle, p1MovesPropertiesCountAddress, 4);
+	int playerMovesPropertiesAdress = memory.ReadInt(processHandle, playerMovesPropertiesPointerAddress, 4);
+	player.moveCount = memory.ReadInt(processHandle, playerMovesPropertiesCountAddress, 4);
 
 	// Address and count will be in big endian. Needs to be swapped to little endian.
-	ByteswapHelpers::SWAP_INT32(&p1MovesPropertiesAdress);
-	ByteswapHelpers::SWAP_INT32(&moveCount);
+	ByteswapHelpers::SWAP_INT32(&playerMovesPropertiesAdress);
+	ByteswapHelpers::SWAP_INT32(&player.moveCount);
 
 	SIZE_T moveSize = sizeof(Move);
 	// Allocate memory for whole moveset properties.
-	p1MovesetBlock = (Byte*)malloc(moveCount * moveSize);
+	player.movesetBlock = (Byte*)malloc(player.moveCount * moveSize);
 
 	// Read whole moveset properties.
-	memory.ReadBytes(processHandle, p1MovesetBlock, gameAddresses.rpcs3_addr + p1MovesPropertiesAdress, moveCount * moveSize);
+	memory.ReadBytes(processHandle, player.movesetBlock, gameAddresses.rpcs3_addr + playerMovesPropertiesAdress, player.moveCount * moveSize);
 
 	// Go through moveset properties and convert big endian to little endian.
-	for (auto& move : StructIterator<Move>(p1MovesetBlock, moveCount))
+	for (auto& move : StructIterator<Move>(player.movesetBlock, player.moveCount))
 	{
 		ByteswapHelpers::SWAP_INT32(&move.name_addr);
 		ByteswapHelpers::SWAP_INT32(&move.anim_name_addr);
@@ -139,11 +129,18 @@ void T5DROverlay::QueryMovelistP1() {
 
 }
 
+void T5DROverlay::QueryMovelists() {
+	T5DRAddresses t5drAddresses;
+
+	QueryMovelistForPlayer(p1, t5drAddresses.t5dr_p1_addr);
+	//QueryMovelistForPlayer(p2, t5drAddresses.t5dr_p1_addr + t5drAddresses.t5_playerstruct_size_offset);
+}
+
 void T5DROverlay::CreateMovelistMapForPlayer(Player & player) {
 	uint16_t assignedMoveId = 0;
 
 
-	for (auto& move : StructIterator<Move>(p1MovesetBlock, moveCount))
+	for (auto& move : StructIterator<Move>(player.movesetBlock, player.moveCount))
 	{
 		player.movesMap[assignedMoveId] = move;
 		assignedMoveId++;
@@ -153,7 +150,7 @@ void T5DROverlay::CreateMovelistMapForPlayer(Player & player) {
 
 void T5DROverlay::CreateMovelistMap() {
 	CreateMovelistMapForPlayer(p1);
-	CreateMovelistMapForPlayer(p2);
+	//CreateMovelistMapForPlayer(p2);
 }
 
 
@@ -225,7 +222,7 @@ void T5DROverlay::DisplayOverlayInfoForPlayer(Player& attacker, Player& defender
 void T5DROverlay::DisplayOverlayInfo() {
 	
 	DisplayOverlayInfoForPlayer(p1, p2);	
-	//DisplayOverlayInfoForPlayer(p2, p1);  // Needs implementation of QueryMovelistP2()
+	//DisplayOverlayInfoForPlayer(p2, p1);
 }
 
 

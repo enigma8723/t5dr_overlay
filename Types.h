@@ -45,6 +45,10 @@ struct Player {
 	uint16_t animLength;
 	uint32_t currentMoveConnects;
 	uint32_t lastMoveConnected;
+
+	Byte* movesetBlock;
+	uint32_t moveCount;
+
 	// Create dictionary for mapping the move ids to the moves.
 	std::map<uint16_t, Move> movesMap;
 };
