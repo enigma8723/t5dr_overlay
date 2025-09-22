@@ -155,50 +155,91 @@ void T5DROverlay::CreateMovelistMap() {
 }
 
 
-void T5DROverlay::FetchOverlayDataForPlayer(Player& attacker, Player& defender, OverlayData& overlayData) {
+void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2OverlayData) {
 
-
-
-		uint16_t attackerCurrentMoveIdCorrected = attacker.currentMoveId;
-		uint16_t defenderCurrentMoveIdCorrected = defender.currentMoveId;
+		uint16_t p1CurrentMoveIdCorrected = p1.currentMoveId;
+		uint16_t p2CurrentMoveIdCorrected = p2.currentMoveId;
 
 		// Standing anim gets reporting as 32769 but has move id 0.
-		if (attacker.currentMoveId == 32769) {
-			attackerCurrentMoveIdCorrected = 0;
+		if (p1.currentMoveId == 32769) {
+			p1CurrentMoveIdCorrected = 0;
 		}
 
 		// Crouching anim gets reporting as 32770 but has an unknown move id. @todo: Find correct move id for crouching anim.
-		if (attacker.currentMoveId == 32770) {
-			attackerCurrentMoveIdCorrected = 0;
+		if (p1.currentMoveId == 32770) {
+			p1CurrentMoveIdCorrected = 0;
 		}
 
 		// Catch all unknown move aliases.
-		if (attacker.currentMoveId >= 32768) {
-			attackerCurrentMoveIdCorrected = 0;
+		if (p1.currentMoveId >= 32768) {
+			p1CurrentMoveIdCorrected = 0;
 		}
 
-		Move attackerCurrentMove = attacker.movesMap.at(attackerCurrentMoveIdCorrected);
+		// Standing anim gets reporting as 32769 but has move id 0.
+		if (p2.currentMoveId == 32769) {
+			p2CurrentMoveIdCorrected = 0;
+		}
 
-		int16_t attackerFrameAdvantage = 0;
-		int16_t defenderFrameAdvantage = 0;
+		// Crouching anim gets reporting as 32770 but has an unknown move id. @todo: Find correct move id for crouching anim.
+		if (p2.currentMoveId == 32770) {
+			p2CurrentMoveIdCorrected = 0;
+		}
+
+		// Catch all unknown move aliases.
+		if (p2.currentMoveId >= 32768) {
+			p2CurrentMoveIdCorrected = 0;
+		}
+
+		Move p1CurrentMove = p1.movesMap.at(p1CurrentMoveIdCorrected);
+		Move p2CurrentMove = p2.movesMap.at(p2CurrentMoveIdCorrected);
+
+		int16_t p1FrameAdvantage = 0;
+		int16_t p2FrameAdvantage = 0;
 
 		// @todo: Add frame data overlay for p2.
 		// If p1 move connects, p1 move has a hitbox and p2 is not executing the same move as before (e.g. first p1 move was blocked, now it hits).
-		if (attacker.currentMoveConnects != 0 && attackerCurrentMove.hitbox_location != 0) {
+		if ((p1.currentMoveConnects != 0 && p1CurrentMove.hitbox_location != 0)
+			|| (p2.currentMoveConnects != 0 && p2CurrentMove.hitbox_location != 0)) {
+			
+
+			p1OverlayData.currentMoveId = p1.currentMoveId;
+			p1OverlayData.firstActiveFrame = p1CurrentMove.first_active_frame;
+			p1OverlayData.lastActiveFrame = p1CurrentMove.last_active_frame;
+			p1OverlayData.animLength = p1.animLength;
+			p1OverlayData.currentMoveConnects = p1.currentMoveConnects;
+
+			p2OverlayData.currentMoveId = p2.currentMoveId;
+			p2OverlayData.firstActiveFrame = p2CurrentMove.first_active_frame;
+			p2OverlayData.lastActiveFrame = p2CurrentMove.last_active_frame;
+			p2OverlayData.animLength = p2.animLength;
+			p2OverlayData.currentMoveConnects = p2.currentMoveConnects;
+
 			// @todo: first_active_frame needs to be changed to the frame the move hit on.
-			attackerFrameAdvantage = defender.animLength - (attacker.animLength - attackerCurrentMove.first_active_frame);
-			defenderFrameAdvantage = attackerFrameAdvantage * -1;
+			// Only p1 connects with p2.
+			if ((p1.currentMoveConnects != 0 && p1CurrentMove.hitbox_location != 0)
+				&& (p2.currentMoveConnects == 0)) {
+				p1FrameAdvantage = p2.animLength - (p1.animLength - p1CurrentMove.first_active_frame);
+				p2FrameAdvantage = p1FrameAdvantage * -1;
+			}
+			else {
+				// Only p2 connects with p1.
+				if ((p1.currentMoveConnects == 0)
+					&& (p2.currentMoveConnects != 0 && p2CurrentMove.hitbox_location != 0)) {
+					p2FrameAdvantage = p1.animLength - (p2.animLength - p2CurrentMove.first_active_frame);
+					p1FrameAdvantage = p2FrameAdvantage * -1;
+				}
+				// p1 and p2 both connect with each other.
+				else {
+					p1FrameAdvantage = (p2.animLength - p2CurrentMove.first_active_frame) - (p1.animLength - p1CurrentMove.first_active_frame);
+					p2FrameAdvantage = (p1.animLength - p1CurrentMove.first_active_frame) - (p2.animLength - p2CurrentMove.first_active_frame);
+				}
+			}
 
-			overlayData.currentMoveId = attacker.currentMoveId;
-			overlayData.firstActiveFrame = attackerCurrentMove.first_active_frame;
-			overlayData.lastActiveFrame = attackerCurrentMove.last_active_frame;
-			overlayData.frameAdvantage = attackerFrameAdvantage;
-			overlayData.animLength = attacker.animLength;
-			overlayData.currentMoveConnects = attacker.currentMoveConnects;
+			p1OverlayData.frameAdvantage = p1FrameAdvantage;
+			p2OverlayData.frameAdvantage = p2FrameAdvantage;
 
-
-			attacker.lastMoveId = attacker.currentMoveId;
-			defender.lastMoveId = defender.currentMoveId;
+			p1.lastMoveId = p1.currentMoveId;
+			p2.lastMoveId = p2.currentMoveId;
 		}
 
 }
@@ -207,11 +248,11 @@ void T5DROverlay::FetchOverlayDataForPlayer(Player& attacker, Player& defender, 
 // enigma start: display move id and name with move props
 // The move ids in the editor and also at memory address 3100909A8 are just the locations of the moves in the movelist (first move is 0, second is 1, third is 2 and so on).
 // Exceptions: Standing anim (32769) and crouching anim (32770).
-void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2OverlayData) {
+/*void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2OverlayData) {
 	
 	FetchOverlayDataForPlayer(p1, p2, p1OverlayData);
 	FetchOverlayDataForPlayer(p2, p1, p2OverlayData);
-}
+}*/
 
 
 void T5DROverlay::SetFirstRunFalse() {
