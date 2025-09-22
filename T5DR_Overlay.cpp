@@ -155,7 +155,7 @@ void T5DROverlay::CreateMovelistMap() {
 }
 
 
-void T5DROverlay::DisplayOverlayInfoForPlayer(Player& attacker, Player& defender, OverlayData& overlayData) {
+void T5DROverlay::FetchOverlayDataForPlayer(Player& attacker, Player& defender, OverlayData& overlayData) {
 
 
 
@@ -179,7 +179,7 @@ void T5DROverlay::DisplayOverlayInfoForPlayer(Player& attacker, Player& defender
 
 		// @todo: Add frame data overlay for p2.
 		// If p1 move connects, p1 move has a hitbox and p2 is not executing the same move as before (e.g. first p1 move was blocked, now it hits).
-		if (attackerCurrentMove.hitbox_location != 0) {
+		if (/*attacker.currentMoveConnects != 0 && */ attackerCurrentMove.hitbox_location != 0) {
 			// @todo: first_active_frame needs to be changed to the frame the move hit on.
 			// @todo: don't show frame advantage on whiff
 			//if (attacker.currentMoveConnects != 0) {
@@ -229,10 +229,10 @@ void T5DROverlay::DisplayOverlayInfoForPlayer(Player& attacker, Player& defender
 // enigma start: display move id and name with move props
 // The move ids in the editor and also at memory address 3100909A8 are just the locations of the moves in the movelist (first move is 0, second is 1, third is 2 and so on).
 // Exceptions: Standing anim (32769) and crouching anim (32770).
-void T5DROverlay::DisplayOverlayInfo(OverlayData& p1OverlayData, OverlayData& p2OverlayData) {
+void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2OverlayData) {
 	
-	DisplayOverlayInfoForPlayer(p1, p2, p1OverlayData);
-	DisplayOverlayInfoForPlayer(p2, p1, p2OverlayData);
+	FetchOverlayDataForPlayer(p1, p2, p1OverlayData);
+	FetchOverlayDataForPlayer(p2, p1, p2OverlayData);
 }
 
 

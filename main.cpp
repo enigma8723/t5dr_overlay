@@ -10,7 +10,18 @@
 const wchar_t* g_szClassName = L"myWindowClass";
 
 T5DROverlay t5DROverlay;
-OverlayData p1OverlayData{ 0 }, p2OverlayData{ 0 };
+OverlayData p1OverlayData{ 0 }, p2OverlayData{ 0 }, p1LastOverlayData{ 0 }, p2LastOverlayData{ 0 };
+
+bool OverlayNeedsUpdate(OverlayData overlayData, OverlayData lastOverlayData) {
+    return !(
+        overlayData.currentMoveId == lastOverlayData.currentMoveId
+        && overlayData.firstActiveFrame == lastOverlayData.firstActiveFrame
+        && overlayData.lastActiveFrame == lastOverlayData.lastActiveFrame
+        && overlayData.frameAdvantage == lastOverlayData.frameAdvantage
+        && overlayData.animLength == lastOverlayData.animLength
+        && overlayData.currentMoveConnects == lastOverlayData.currentMoveConnects
+    );
+}
 
 void PrepareOverlay() {
     t5DROverlay.AttachToProcess();
@@ -18,20 +29,25 @@ void PrepareOverlay() {
     t5DROverlay.CreateMovelistMap();
 }
 
-void DisplayOverlay()
+void FetchOverlayData()
 {
 
     t5DROverlay.QueryCurrentMoveInfo();
-    t5DROverlay.DisplayOverlayInfo(p1OverlayData, p2OverlayData);
+    t5DROverlay.FetchOverlayData(p1OverlayData, p2OverlayData);
     t5DROverlay.SetFirstRunFalse();
 
 }
 
 void CALLBACK f(HWND hwnd, UINT uMsg, UINT timerId, DWORD dwTime)
 {
-    DisplayOverlay();
-    InvalidateRect(hwnd, NULL, TRUE);
-    //UpdateWindow(hwnd);
+    FetchOverlayData();
+
+    // Prevents window flickering.
+    if (OverlayNeedsUpdate(p1OverlayData, p1LastOverlayData) || OverlayNeedsUpdate(p2OverlayData, p2LastOverlayData)) {
+        InvalidateRect(hwnd, NULL, TRUE);
+        //UpdateWindow(hwnd);
+    }
+
 }
 
 // Step 4: the Window Procedure
@@ -61,6 +77,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         overlayString += "p2 move anim length: " + std::to_string(p2OverlayData.animLength) + "\n";
         overlayString += "p2 move connects?: " + std::to_string(p2OverlayData.currentMoveConnects) + "\n";
         widestr = std::wstring(overlayString.begin(), overlayString.end());
+
+        p1LastOverlayData = p1OverlayData;
+        p2LastOverlayData = p2OverlayData;
 
         DrawText(hdc, widestr.c_str(), -1, &rect, DT_EDITCONTROL | DT_NOCLIP | DT_CENTER | DT_VCENTER);
         EndPaint(hwnd, &ps);

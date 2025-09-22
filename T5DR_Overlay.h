@@ -21,7 +21,7 @@ private:
 
 	void QueryMovelistForPlayer(Player& player, gameAddr playerAddress);
 	void CreateMovelistMapForPlayer(Player& player);
-	void DisplayOverlayInfoForPlayer(Player& attacker, Player& defender, OverlayData& overlayData);
+	void FetchOverlayDataForPlayer(Player& attacker, Player& defender, OverlayData& overlayData);
 
 public:
 
@@ -42,7 +42,7 @@ public:
 
 	void CreateMovelistMap();
 
-	void DisplayOverlayInfo(OverlayData& p1OverlayData, OverlayData& p2OverlayData);
+	void FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2OverlayData);
 
 	void SetFirstRunFalse();
 
