@@ -7,15 +7,15 @@
       "RelativeMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|solutionrelative:T5DR_Overlay.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|I:\\Programming\\T5DR_Overlay\\T5DR_Overlay.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|solutionrelative:T5DR_Overlay.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|I:\\Programming\\T5DR_Overlay\\main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|solutionrelative:main.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\include\\map||{3B902123-F8A7-4915-9F01-361F908088D0}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|I:\\Programming\\T5DR_Overlay\\T5DR_Overlay.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|solutionrelative:T5DR_Overlay.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
       "AbsoluteMoniker": "D:0:0:{96ED4F69-8E23-4877-9CBF-93E1DED2834A}|T5DR_Overlay.vcxproj|I:\\Programming\\T5DR_Overlay\\Types.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
@@ -53,13 +53,14 @@
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 3,
               "Title": "map",
               "DocumentMoniker": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\include\\map",
               "ToolTip": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.44.35207\\include\\map",
               "ViewState": "AgIAAFABAAAAAAAAAAAlwF8BAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2025-09-20T12:55:58.613Z"
+              "WhenOpened": "2025-09-22T18:26:31.448Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -69,9 +70,10 @@
               "RelativeDocumentMoniker": "Types.h",
               "ToolTip": "I:\\Programming\\T5DR_Overlay\\Types.h",
               "RelativeToolTip": "Types.h",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAD0AAAAeAAAAAAAAAA==",
+              "ViewState": "AgIAACQAAAAAAAAAAAAAADgAAAABAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-09-12T14:17:27.11Z"
+              "WhenOpened": "2025-09-12T14:17:27.11Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -87,13 +89,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 2,
               "Title": "main.cpp",
               "DocumentMoniker": "I:\\Programming\\T5DR_Overlay\\main.cpp",
               "RelativeDocumentMoniker": "main.cpp",
               "ToolTip": "I:\\Programming\\T5DR_Overlay\\main.cpp",
               "RelativeToolTip": "main.cpp",
-              "ViewState": "AgIAACEAAAAAAAAAAAAAADMAAAAAAAAAAAAAAA==",
+              "ViewState": "AgIAAFEAAAAAAAAAAAAQwFQAAAAAAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-09-14T10:56:17.313Z",
               "EditorCaption": ""
@@ -148,15 +150,16 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 1,
               "Title": "T5DR_Overlay.h",
               "DocumentMoniker": "I:\\Programming\\T5DR_Overlay\\T5DR_Overlay.h",
               "RelativeDocumentMoniker": "T5DR_Overlay.h",
               "ToolTip": "I:\\Programming\\T5DR_Overlay\\T5DR_Overlay.h",
               "RelativeToolTip": "T5DR_Overlay.h",
-              "ViewState": "AgIAAAwAAAAAAAAAAAAAACwAAABPAAAAAAAAAA==",
+              "ViewState": "AgIAAAwAAAAAAAAAAAAAABYAAAAxAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
-              "WhenOpened": "2025-09-12T14:18:47.773Z"
+              "WhenOpened": "2025-09-12T14:18:47.773Z",
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
@@ -166,7 +169,7 @@
               "RelativeDocumentMoniker": "T5DR_Overlay.cpp",
               "ToolTip": "I:\\Programming\\T5DR_Overlay\\T5DR_Overlay.cpp",
               "RelativeToolTip": "T5DR_Overlay.cpp",
-              "ViewState": "AgIAAKQAAAAAAAAAAAAlwLcAAAATAAAAAAAAAA==",
+              "ViewState": "AgIAANAAAAAAAAAAAAAqwNwAAAAfAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2025-09-12T14:04:14.836Z",
               "EditorCaption": ""
