@@ -172,6 +172,11 @@ void T5DROverlay::FetchOverlayDataForPlayer(Player& attacker, Player& defender, 
 			attackerCurrentMoveIdCorrected = 0;
 		}
 
+		// Catch all unknown move aliases.
+		if (attacker.currentMoveId >= 32768) {
+			attackerCurrentMoveIdCorrected = 0;
+		}
+
 		Move attackerCurrentMove = attacker.movesMap.at(attackerCurrentMoveIdCorrected);
 
 		int16_t attackerFrameAdvantage = 0;
@@ -179,23 +184,10 @@ void T5DROverlay::FetchOverlayDataForPlayer(Player& attacker, Player& defender, 
 
 		// @todo: Add frame data overlay for p2.
 		// If p1 move connects, p1 move has a hitbox and p2 is not executing the same move as before (e.g. first p1 move was blocked, now it hits).
-		if (/*attacker.currentMoveConnects != 0 && */ attackerCurrentMove.hitbox_location != 0) {
+		if (attacker.currentMoveConnects != 0 && attackerCurrentMove.hitbox_location != 0) {
 			// @todo: first_active_frame needs to be changed to the frame the move hit on.
-			// @todo: don't show frame advantage on whiff
-			//if (attacker.currentMoveConnects != 0) {
-				attackerFrameAdvantage = defender.animLength - (attacker.animLength - attackerCurrentMove.first_active_frame);
-				defenderFrameAdvantage = attackerFrameAdvantage * -1;
-			//}
-
-			string attackerPlusSymbol = "";
-			if (attackerFrameAdvantage > 0) {
-				attackerPlusSymbol = "+";
-			}
-
-			string defenderPlusSymbol = "";
-			if (defenderFrameAdvantage > 0) {
-				defenderPlusSymbol = "+";
-			}
+			attackerFrameAdvantage = defender.animLength - (attacker.animLength - attackerCurrentMove.first_active_frame);
+			defenderFrameAdvantage = attackerFrameAdvantage * -1;
 
 			overlayData.currentMoveId = attacker.currentMoveId;
 			overlayData.firstActiveFrame = attackerCurrentMove.first_active_frame;
@@ -204,20 +196,6 @@ void T5DROverlay::FetchOverlayDataForPlayer(Player& attacker, Player& defender, 
 			overlayData.animLength = attacker.animLength;
 			overlayData.currentMoveConnects = attacker.currentMoveConnects;
 
-			/*
-			std::cout << "p1 move id: " << attacker.currentMoveId << std::endl;
-			std::cout << "p1 active frames: " << attackerCurrentMove.first_active_frame << " - " << attackerCurrentMove.last_active_frame << std::endl;
-			std::cout << "p1 frame advantage: " << attackerPlusSymbol << attackerFrameAdvantage << std::endl;
-			std::cout << "p1 move anim length: " << attacker.animLength << std::endl;
-			std::cout << "p1 move connects?: " << attacker.currentMoveConnects << std::endl;
-			std::cout << "------------------------------ " << std::endl;
-			
-			std::cout << "p2 move id: " << defender.currentMoveId << std::endl;
-			std::cout << "p2 frame advantage: " << defenderPlusSymbol << defenderFrameAdvantage << std::endl;
-			std::cout << "p2 move anim length: " << defender.animLength << std::endl;
-			std::cout << "p2 move connects?: " << defender.currentMoveConnects << std::endl;
-			std::cout << "============================== " << std::endl;
-				*/
 
 			attacker.lastMoveId = attacker.currentMoveId;
 			defender.lastMoveId = defender.currentMoveId;

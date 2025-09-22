@@ -3,6 +3,8 @@
 #include <iostream>
 #include <stdint.h>
 #include <windows.h>
+#include <chrono>
+#include <thread>
 
 #include "Types.h"
 #include "T5DR_Overlay.h"
@@ -11,6 +13,7 @@ const wchar_t* g_szClassName = L"myWindowClass";
 
 T5DROverlay t5DROverlay;
 OverlayData p1OverlayData{ 0 }, p2OverlayData{ 0 }, p1LastOverlayData{ 0 }, p2LastOverlayData{ 0 };
+std::thread* subThread;
 
 bool OverlayNeedsUpdate(OverlayData overlayData, OverlayData lastOverlayData) {
     return !(
@@ -34,21 +37,33 @@ void FetchOverlayData()
 
     t5DROverlay.QueryCurrentMoveInfo();
     t5DROverlay.FetchOverlayData(p1OverlayData, p2OverlayData);
-    t5DROverlay.SetFirstRunFalse();
+    //t5DROverlay.SetFirstRunFalse();
 
 }
 
-void CALLBACK f(HWND hwnd, UINT uMsg, UINT timerId, DWORD dwTime)
-{
-    FetchOverlayData();
 
-    // Prevents window flickering.
-    if (OverlayNeedsUpdate(p1OverlayData, p1LastOverlayData) || OverlayNeedsUpdate(p2OverlayData, p2LastOverlayData)) {
-        InvalidateRect(hwnd, NULL, TRUE);
-        //UpdateWindow(hwnd);
+void UpdateOverlay(HWND hwnd) {
+
+    //auto start = std::chrono::steady_clock::now();
+
+    while (true) {
+        FetchOverlayData();
+
+        // Prevents window flickering.
+        if (OverlayNeedsUpdate(p1OverlayData, p1LastOverlayData) || OverlayNeedsUpdate(p2OverlayData, p2LastOverlayData)) {
+            InvalidateRect(hwnd, NULL, TRUE);
+            //UpdateWindow(hwnd);
+        }
     }
 
+    /*auto end = std::chrono::steady_clock::now();
+
+    auto diffNs = end - start;
+    auto diffMs = std::chrono::duration<double, std::milli>(diffNs).count();
+    std::cout << "Duration : " << diffMs << " ms\n";*/
+
 }
+
 
 // Step 4: the Window Procedure
 LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
@@ -59,6 +74,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
     string overlayString;
     std::wstring widestr;
+    string p1PlusSymbol = "";
+    string p2PlusSymbol = "";
 
     switch (message)
     {
@@ -66,14 +83,23 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         hdc = BeginPaint(hwnd, &ps);
         GetClientRect(hwnd, &rect);
 
+        
+        if (p1OverlayData.frameAdvantage > 0) {
+            p1PlusSymbol = "+";
+        }
+
+        if (p2OverlayData.frameAdvantage > 0) {
+            p2PlusSymbol = "+";
+        }
+
         overlayString = "p1 move id: " + std::to_string(p1OverlayData.currentMoveId) + "\n";
         overlayString += "p1 active frames: " + std::to_string(p1OverlayData.firstActiveFrame) + " - " + std::to_string(p1OverlayData.lastActiveFrame) + "\n";
-        overlayString += "p1 frame advantage: " + std::to_string(p1OverlayData.frameAdvantage) + "\n";
+        overlayString += "p1 frame advantage: " + p1PlusSymbol + std::to_string(p1OverlayData.frameAdvantage) + "\n";
         overlayString += "p1 move anim length: " + std::to_string(p1OverlayData.animLength) + "\n";
         overlayString += "p1 move connects?: " + std::to_string(p1OverlayData.currentMoveConnects) + "\n\n\n";
         overlayString += "p2 move id: " + std::to_string(p2OverlayData.currentMoveId) + "\n";
         overlayString += "p2 active frames: " + std::to_string(p2OverlayData.firstActiveFrame) + " - " + std::to_string(p2OverlayData.lastActiveFrame) + "\n";
-        overlayString += "p2 frame advantage: " + std::to_string(p2OverlayData.frameAdvantage) + "\n";
+        overlayString += "p2 frame advantage: " + p2PlusSymbol + std::to_string(p2OverlayData.frameAdvantage) + "\n";
         overlayString += "p2 move anim length: " + std::to_string(p2OverlayData.animLength) + "\n";
         overlayString += "p2 move connects?: " + std::to_string(p2OverlayData.currentMoveConnects) + "\n";
         widestr = std::wstring(overlayString.begin(), overlayString.end());
@@ -86,6 +112,8 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
         return 0;
 
     case WM_DESTROY:
+        subThread->detach();
+        subThread->~thread();
         PostQuitMessage(0);
         return 0;
     }
@@ -140,8 +168,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     ShowWindow(hwnd, nCmdShow);
     UpdateWindow(hwnd);
 
-    SetTimer(NULL, 0, 16, (TIMERPROC)&f);
 
+    // Constructs the new thread and runs it. Does not block execution.
+    std::thread sub(UpdateOverlay, hwnd);
+    subThread = &sub;
 
     // Step 3: The Message Loop
     while (GetMessage(&Msg, NULL, 0, 0) > 0)
