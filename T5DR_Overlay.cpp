@@ -154,6 +154,10 @@ void T5DROverlay::CreateMovelistMap() {
 	CreateMovelistMapForPlayer(p2);
 }
 
+bool T5DROverlay::IsMoveAttack(Move move) {
+	return (move.hitlevel != 0) || (move.hitbox_location != 0) || (move.first_active_frame != 0) || (move.last_active_frame != 0);
+}
+
 
 void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2OverlayData) {
 
@@ -197,11 +201,11 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 		int16_t p2FrameAdvantage = 0;
 
 		// @todo: Add frame data overlay for p2.
+		// @todo: Unsure how to handle move cancels like d/f+1 -> b
 		// If p1 move connects, p1 move has a hitbox and p2 is not executing the same move as before (e.g. first p1 move was blocked, now it hits).
-		if ((p1.currentMoveConnects != 0 && p1CurrentMove.hitbox_location != 0)
-			|| (p2.currentMoveConnects != 0 && p2CurrentMove.hitbox_location != 0)) {
+		if ((p1.currentMoveConnects != 0 && IsMoveAttack(p1CurrentMove))
+			|| (p2.currentMoveConnects != 0 && IsMoveAttack(p2CurrentMove))) {
 			
-
 			p1OverlayData.currentMoveId = p1.currentMoveId;
 			p1OverlayData.firstActiveFrame = p1CurrentMove.first_active_frame;
 			p1OverlayData.lastActiveFrame = p1CurrentMove.last_active_frame;
@@ -216,7 +220,7 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 
 			// @todo: first_active_frame needs to be changed to the frame the move hit on.
 			// Only p1 connects with p2.
-			if ((p1.currentMoveConnects != 0 && p1CurrentMove.hitbox_location != 0)
+			if ((p1.currentMoveConnects != 0 && IsMoveAttack(p1CurrentMove))
 				&& (p2.currentMoveConnects == 0)) {
 				p1FrameAdvantage = p2.animLength - (p1.animLength - p1CurrentMove.first_active_frame);
 				p2FrameAdvantage = p1FrameAdvantage * -1;
@@ -224,7 +228,7 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 			else {
 				// Only p2 connects with p1.
 				if ((p1.currentMoveConnects == 0)
-					&& (p2.currentMoveConnects != 0 && p2CurrentMove.hitbox_location != 0)) {
+					&& (p2.currentMoveConnects != 0 && IsMoveAttack(p2CurrentMove))) {
 					p2FrameAdvantage = p1.animLength - (p2.animLength - p2CurrentMove.first_active_frame);
 					p1FrameAdvantage = p2FrameAdvantage * -1;
 				}
@@ -233,6 +237,11 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 					p1FrameAdvantage = (p2.animLength - p2CurrentMove.first_active_frame) - (p1.animLength - p1CurrentMove.first_active_frame);
 					p2FrameAdvantage = (p1.animLength - p1CurrentMove.first_active_frame) - (p2.animLength - p2CurrentMove.first_active_frame);
 				}
+			}
+
+
+			if (p1FrameAdvantage == 10) {
+				printf("");
 			}
 
 			p1OverlayData.frameAdvantage = p1FrameAdvantage;

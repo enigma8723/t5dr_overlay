@@ -21,6 +21,7 @@ private:
 
 	void QueryMovelistForPlayer(Player& player, gameAddr playerAddress);
 	void CreateMovelistMapForPlayer(Player& player);
+	bool IsMoveAttack(Move move);
 
 public:
 
