@@ -161,41 +161,52 @@ bool T5DROverlay::IsMoveAttack(Move move) {
 
 void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2OverlayData) {
 
-		uint16_t p1CurrentMoveIdCorrected = p1.currentMoveId;
-		uint16_t p2CurrentMoveIdCorrected = p2.currentMoveId;
+	uint16_t p1CurrentMoveIdCorrected = p1.currentMoveId;
+	uint16_t p2CurrentMoveIdCorrected = p2.currentMoveId;
 
-		// Standing anim gets reporting as 32769 but has move id 0.
-		if (p1.currentMoveId == 32769) {
-			p1CurrentMoveIdCorrected = 0;
-		}
+	// Standing anim gets reporting as 32769 but has move id 0.
+	if (p1.currentMoveId == 32769) {
+		p1CurrentMoveIdCorrected = 0;
+	}
 
-		// Crouching anim gets reporting as 32770 but has an unknown move id. @todo: Find correct move id for crouching anim.
-		if (p1.currentMoveId == 32770) {
-			p1CurrentMoveIdCorrected = 0;
-		}
+	// Crouching anim gets reporting as 32770 but has an unknown move id. @todo: Find correct move id for crouching anim.
+	if (p1.currentMoveId == 32770) {
+		p1CurrentMoveIdCorrected = 0;
+	}
 
-		// Catch all unknown move aliases.
-		if (p1.currentMoveId >= 32768) {
-			p1CurrentMoveIdCorrected = 0;
-		}
+	// Catch all unknown move aliases.
+	if (p1.currentMoveId >= 32768) {
+		p1CurrentMoveIdCorrected = 0;
+	}
 
-		// Standing anim gets reporting as 32769 but has move id 0.
-		if (p2.currentMoveId == 32769) {
-			p2CurrentMoveIdCorrected = 0;
-		}
+	// Standing anim gets reporting as 32769 but has move id 0.
+	if (p2.currentMoveId == 32769) {
+		p2CurrentMoveIdCorrected = 0;
+	}
 
-		// Crouching anim gets reporting as 32770 but has an unknown move id. @todo: Find correct move id for crouching anim.
-		if (p2.currentMoveId == 32770) {
-			p2CurrentMoveIdCorrected = 0;
-		}
+	// Crouching anim gets reporting as 32770 but has an unknown move id. @todo: Find correct move id for crouching anim.
+	if (p2.currentMoveId == 32770) {
+		p2CurrentMoveIdCorrected = 0;
+	}
 
-		// Catch all unknown move aliases.
-		if (p2.currentMoveId >= 32768) {
-			p2CurrentMoveIdCorrected = 0;
-		}
+	// Catch all unknown move aliases.
+	if (p2.currentMoveId >= 32768) {
+		p2CurrentMoveIdCorrected = 0;
+	}
 
-		Move p1CurrentMove = p1.movesMap.at(p1CurrentMoveIdCorrected);
-		Move p2CurrentMove = p2.movesMap.at(p2CurrentMoveIdCorrected);
+	Move p1CurrentMove = p1.movesMap.at(p1CurrentMoveIdCorrected);
+	Move p2CurrentMove = p2.movesMap.at(p2CurrentMoveIdCorrected);
+
+	ExtraMoveProperty p1ExtraProps{ 0 };
+	ExtraMoveProperty p2ExtraProps{ 0 };
+
+	if (p1CurrentMove.extra_move_property_addr != 0) {
+		p1ExtraProps = QueryExtraPropertyOfMove(p1CurrentMove.extra_move_property_addr);
+	}
+
+	if (p2CurrentMove.extra_move_property_addr != 0) {
+		p2ExtraProps = QueryExtraPropertyOfMove(p2CurrentMove.extra_move_property_addr);
+	}
 
 		int16_t p1FrameAdvantage = 0;
 		int16_t p2FrameAdvantage = 0;
@@ -266,4 +277,88 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 
 void T5DROverlay::SetFirstRunFalse() {
 	isFirstRun = false;
+}
+
+
+void T5DROverlay::QueryExtraPropsForPlayer(Player& player, gameAddr relPlayerAddress) {
+	GameAddresses gameAddresses;
+	T5DRAddresses t5drAddresses;
+
+	gameAddr playerAddress = gameAddresses.rpcs3_addr + relPlayerAddress;
+
+	// Address in p1's object that holds the address of p1's moveset table of contents.
+	gameAddr playerMovesetTOCPointerAddress = playerAddress + t5drAddresses.t5_moveset_toc_address_offset;
+
+	// Address of moveset table of contents.
+	// Changed return type to int because for some characters (e.g. Bryan) the value at the address is negative before the conversion to little endian.
+	int playerMovesetTOCAddress = memory.ReadInt(processHandle, playerMovesetTOCPointerAddress, 4);
+
+	// Address will be in little endian. Needs to be swapped to big endian.
+	ByteswapHelpers::SWAP_INT32(&playerMovesetTOCAddress);
+
+	// Calculate address for pointer to extra properties address. Also calculate address where extra properties count is held.
+	gameAddr playerExtraPropertiesPointerAddress = gameAddresses.rpcs3_addr + playerMovesetTOCAddress + t5drAddresses.t5_moveset_toc_extra_props_adress_offset;
+	gameAddr playerExtraPropertiesCountAddress = gameAddresses.rpcs3_addr + playerMovesetTOCAddress + t5drAddresses.t5_moveset_toc_extra_props_adress_offset + 0x4;
+
+	// Read extra properties address at pointer. Read extra properties count.
+	// Changed return type to int because for some characters (e.g. Bryan) the value at the address is negative before the conversion to little endian.
+	int playerExtraPropertiesAdress = memory.ReadInt(processHandle, playerExtraPropertiesPointerAddress, 4);
+	player.extraPropsCount = memory.ReadInt(processHandle, playerExtraPropertiesCountAddress, 4);
+
+	// Address and count will be in big endian. Needs to be swapped to little endian.
+	ByteswapHelpers::SWAP_INT32(&playerExtraPropertiesAdress);
+	ByteswapHelpers::SWAP_INT32(&player.extraPropsCount);
+
+	SIZE_T extraPropsSize = sizeof(ExtraMoveProperty);
+	// Allocate memory for whole extra properties.
+	player.extraPropsBlock = (Byte*)malloc(player.extraPropsCount * extraPropsSize);
+
+	// Read whole extra properties.
+	memory.ReadBytes(processHandle, player.extraPropsBlock, gameAddresses.rpcs3_addr + playerExtraPropertiesAdress, player.extraPropsCount * extraPropsSize);
+
+	// Go through extra properties and convert big endian to little endian.
+	for (auto& extraProp : StructIterator<ExtraMoveProperty>(player.extraPropsBlock, player.extraPropsCount))
+	{
+		ByteswapHelpers::SWAP_INT16(&extraProp.starting_frame);
+		ByteswapHelpers::SWAP_INT16(&extraProp.id);
+		ByteswapHelpers::SWAP_INT32(&extraProp.value_unsigned);
+	}
+
+
+}
+
+void T5DROverlay::QueryExtraProperties() {
+	T5DRAddresses t5drAddresses;
+
+	QueryExtraPropsForPlayer(p1, t5drAddresses.t5dr_p1_addr);
+	QueryExtraPropsForPlayer(p2, t5drAddresses.t5dr_p1_addr + t5drAddresses.t5_playerstruct_size_offset);
+}
+
+ExtraMoveProperty T5DROverlay::QueryExtraPropertyOfMove(gameAddr extraPropsAddress) {
+	GameAddresses gameAddresses;
+
+	// @todo: Actually there's a list from the address onwards. It goes from the property at the address until
+	// a property with starting_frame = 0 is found.
+	// See function of Tekken Moveset Extractor:
+	// std::vector<InputMap> EditorT7::GetExtrapropListInputs(uint16_t id, VectorSet<std::string>& drawOrder)
+	// Editor_t7_Forms.cpp
+	SIZE_T extraPropsSize = sizeof(ExtraMoveProperty);
+	// Allocate memory for whole extra properties.
+	Byte * extraPropsBlock = (Byte*)malloc(extraPropsSize);
+
+	// Read whole extra properties.
+	memory.ReadBytes(processHandle, extraPropsBlock, gameAddresses.rpcs3_addr + extraPropsAddress, extraPropsSize);
+
+	// Go through extra properties and convert big endian to little endian.
+	for (auto& extraProp : StructIterator<ExtraMoveProperty>(extraPropsBlock, 1))
+	{
+		ByteswapHelpers::SWAP_INT16(&extraProp.starting_frame);
+		ByteswapHelpers::SWAP_INT16(&extraProp.id);
+		ByteswapHelpers::SWAP_INT32(&extraProp.value_unsigned);
+	}
+
+	ExtraMoveProperty extraPropFinal;
+	std::memcpy(&extraPropFinal, extraPropsBlock, sizeof(ExtraMoveProperty));
+
+	return extraPropFinal;
 }

@@ -23,6 +23,9 @@ private:
 	void CreateMovelistMapForPlayer(Player& player);
 	bool IsMoveAttack(Move move);
 
+	void QueryExtraPropsForPlayer(Player& player, gameAddr relPlayerAddress);
+	ExtraMoveProperty QueryExtraPropertyOfMove(gameAddr extraPropsAddress);
+
 public:
 
 	T5DROverlay() :
@@ -45,6 +48,9 @@ public:
 	void FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2OverlayData);
 
 	void SetFirstRunFalse();
+
+	
+	void QueryExtraProperties();
 
 
 };

@@ -49,6 +49,9 @@ struct Player {
 	Byte* movesetBlock;
 	uint32_t moveCount;
 
+	Byte* extraPropsBlock;
+	uint32_t extraPropsCount;
+
 	// Create dictionary for mapping the move ids to the moves.
 	std::map<uint16_t, Move> movesMap;
 };
@@ -60,4 +63,16 @@ struct OverlayData {
 	int16_t frameAdvantage;
 	uint32_t animLength;
 	uint32_t currentMoveConnects;
+};
+
+struct ExtraMoveProperty
+{
+	uint16_t starting_frame;
+	uint16_t id;
+	union
+	{
+		uint32_t value_unsigned;
+		int32_t value_signed;
+		float value_float;
+	};
 };
