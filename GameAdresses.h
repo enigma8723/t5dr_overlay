@@ -16,5 +16,6 @@ struct T5DRAddresses {
 	uint16_t t5_playerstruct_size_offset = 0x8D0;
 	uint16_t t5_moveset_toc_address_offset = 0x50;
 	uint16_t t5_moveset_toc_moves_adress_offset = 0x1E0;
-	uint16_t t5_moveset_toc_extra_props_adress_offset = 0x1C8;
+	uint16_t t5_moveset_toc_cancels_adress_offset = 0x198; // ??? doesn't seem to be correct
+	uint16_t t5_moveset_toc_extra_props_adress_offset = 0x1BC; //0x1C8;  ??? doesn't seem to be correct
 };

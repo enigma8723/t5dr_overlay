@@ -30,6 +30,8 @@ void PrepareOverlay() {
     t5DROverlay.AttachToProcess();
     t5DROverlay.QueryMovelists();
     t5DROverlay.CreateMovelistMap();
+    t5DROverlay.QueryCancels();
+    t5DROverlay.CreateCancelsMap();
     t5DROverlay.QueryExtraProperties();
     t5DROverlay.CreateExtraPropertiesMap();
 }

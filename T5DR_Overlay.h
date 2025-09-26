@@ -24,10 +24,13 @@ private:
 	void CreateMovelistMapForPlayer(Player& player);
 	bool IsMoveAttack(Move move);
 
+	void QueryCancelsForPlayer(Player& player, gameAddr relPlayerAddress);
+	void CreateCancelsMapForPlayer(Player& player);
+
 	void QueryExtraPropsForPlayer(Player& player, gameAddr relPlayerAddress);
 	void CreateExtraPropertiesMapForPlayer(Player& player);
 
-
+	std::map<uint16_t, Cancel> QueryCancelsOfMove(Player& player, gameAddr moveCancelAddress);
 	std::map<uint16_t, ExtraMoveProperty> QueryExtraPropertyOfMove(Player& player, gameAddr extraPropsAddress);
 
 public:
@@ -54,6 +57,10 @@ public:
 	void SetFirstRunFalse();
 
 	
+	void QueryCancels();
+
+	void CreateCancelsMap();
+
 	void QueryExtraProperties();
 
 	void CreateExtraPropertiesMap();

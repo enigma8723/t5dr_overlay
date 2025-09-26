@@ -39,6 +39,26 @@ struct Move
 	uint16_t distance;
 };
 
+struct Cancel
+{
+	union
+	{
+		uint32_t command;
+		struct
+		{
+			uint16_t direction;
+			uint16_t button;
+		};
+	};
+	gameAddr32 requirements_addr;
+	uint32_t move_id;
+	gameAddr32 extradata_addr;
+	uint16_t detection_start;
+	uint16_t detection_end;
+	uint16_t starting_frame;
+	uint16_t cancel_option;
+};
+
 struct ExtraMoveProperty
 {
 	uint16_t starting_frame;
@@ -57,16 +77,21 @@ struct Player {
 	uint16_t animLength;
 	uint32_t currentMoveConnects;
 	uint32_t lastMoveConnected;
+	gameAddr cancelAddress; // beginning of cancels list
 	gameAddr extraPropsAddress; // beginning of extra properties list
 
 	Byte* movesetBlock;
 	uint32_t moveCount;
+
+	Byte* cancelsBlock;
+	uint32_t cancelsCount;
 
 	Byte* extraPropsBlock;
 	uint32_t extraPropsCount;
 
 	// Create dictionary for mapping the move ids to the moves.
 	std::map<uint16_t, Move> movesMap;
+	std::map<uint16_t, Cancel> cancelsMap;
 	std::map<uint16_t, ExtraMoveProperty> extraPropsMap;
 };
 

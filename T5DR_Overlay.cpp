@@ -197,8 +197,16 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 	Move p1CurrentMove = p1.movesMap.at(p1CurrentMoveIdCorrected);
 	Move p2CurrentMove = p2.movesMap.at(p2CurrentMoveIdCorrected);
 
+
+	if (p1.currentMoveId == 419) {
+		printf("");
+	}
+
 	std::map<uint16_t, ExtraMoveProperty> p1MoveExtraPropsMap;
 	std::map<uint16_t, ExtraMoveProperty> p2MoveExtraPropsMap;
+
+	std::map<uint16_t, Cancel> p1MoveCancelMap;
+	std::map<uint16_t, Cancel> p2MoveCancelMap;
 
 	// Get extra properties list of current move.
 	// Unfortunately extra property id 0x82c8 (fake recovery frames) doesn't exist in T5DR.
@@ -212,59 +220,68 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 		p2MoveExtraPropsMap = QueryExtraPropertyOfMove(p2, p2CurrentMove.extra_move_property_addr);
 	}
 
-		int16_t p1FrameAdvantage = 0;
-		int16_t p2FrameAdvantage = 0;
+	
+	if (p1CurrentMove.cancel_addr != 0) {
+		p1MoveCancelMap = QueryCancelsOfMove(p1, p1CurrentMove.cancel_addr);
+	}
 
-		// @todo: Add frame data overlay for p2.
-		// @todo: Unsure how to handle move cancels like d/f+1 -> b
-		// If p1 move connects, p1 move has a hitbox and p2 is not executing the same move as before (e.g. first p1 move was blocked, now it hits).
-		if ((p1.currentMoveConnects != 0 && IsMoveAttack(p1CurrentMove))
-			|| (p2.currentMoveConnects != 0 && IsMoveAttack(p2CurrentMove))) {
+	if (p2CurrentMove.cancel_addr != 0) {
+		p2MoveCancelMap = QueryCancelsOfMove(p2, p2CurrentMove.cancel_addr);
+	}
+
+
+
+	int16_t p1FrameAdvantage = 0;
+	int16_t p2FrameAdvantage = 0;
+
+	// @todo: Add frame data overlay for p2.
+	// @todo: Unsure how to handle move cancels like d/f+1 -> b
+	// If p1 move connects, p1 move has a hitbox and p2 is not executing the same move as before (e.g. first p1 move was blocked, now it hits).
+	if ((p1.currentMoveConnects != 0 && IsMoveAttack(p1CurrentMove))
+		|| (p2.currentMoveConnects != 0 && IsMoveAttack(p2CurrentMove))) {
 			
-			p1OverlayData.currentMoveId = p1.currentMoveId;
-			p1OverlayData.firstActiveFrame = p1CurrentMove.first_active_frame;
-			p1OverlayData.lastActiveFrame = p1CurrentMove.last_active_frame;
-			p1OverlayData.animLength = p1.animLength;
-			p1OverlayData.currentMoveConnects = p1.currentMoveConnects;
+		p1OverlayData.currentMoveId = p1.currentMoveId;
+		p1OverlayData.firstActiveFrame = p1CurrentMove.first_active_frame;
+		p1OverlayData.lastActiveFrame = p1CurrentMove.last_active_frame;
+		p1OverlayData.animLength = p1.animLength;
+		p1OverlayData.currentMoveConnects = p1.currentMoveConnects;
 
-			p2OverlayData.currentMoveId = p2.currentMoveId;
-			p2OverlayData.firstActiveFrame = p2CurrentMove.first_active_frame;
-			p2OverlayData.lastActiveFrame = p2CurrentMove.last_active_frame;
-			p2OverlayData.animLength = p2.animLength;
-			p2OverlayData.currentMoveConnects = p2.currentMoveConnects;
+		p2OverlayData.currentMoveId = p2.currentMoveId;
+		p2OverlayData.firstActiveFrame = p2CurrentMove.first_active_frame;
+		p2OverlayData.lastActiveFrame = p2CurrentMove.last_active_frame;
+		p2OverlayData.animLength = p2.animLength;
+		p2OverlayData.currentMoveConnects = p2.currentMoveConnects;
 
-			// @todo: first_active_frame needs to be changed to the frame the move hit on.
-			// Only p1 connects with p2.
-			if ((p1.currentMoveConnects != 0 && IsMoveAttack(p1CurrentMove))
-				&& (p2.currentMoveConnects == 0)) {
-				p1FrameAdvantage = p2.animLength - (p1.animLength - p1CurrentMove.first_active_frame);
-				p2FrameAdvantage = p1FrameAdvantage * -1;
-			}
-			else {
-				// Only p2 connects with p1.
-				if ((p1.currentMoveConnects == 0)
-					&& (p2.currentMoveConnects != 0 && IsMoveAttack(p2CurrentMove))) {
-					p2FrameAdvantage = p1.animLength - (p2.animLength - p2CurrentMove.first_active_frame);
-					p1FrameAdvantage = p2FrameAdvantage * -1;
-				}
-				// p1 and p2 both connect with each other.
-				else {
-					p1FrameAdvantage = (p2.animLength - p2CurrentMove.first_active_frame) - (p1.animLength - p1CurrentMove.first_active_frame);
-					p2FrameAdvantage = (p1.animLength - p1CurrentMove.first_active_frame) - (p2.animLength - p2CurrentMove.first_active_frame);
-				}
-			}
-
-
-			if (p1FrameAdvantage == 10) {
-				printf("");
-			}
-
-			p1OverlayData.frameAdvantage = p1FrameAdvantage;
-			p2OverlayData.frameAdvantage = p2FrameAdvantage;
-
-			p1.lastMoveId = p1.currentMoveId;
-			p2.lastMoveId = p2.currentMoveId;
+		// @todo: first_active_frame needs to be changed to the frame the move hit on.
+		// Only p1 connects with p2.
+		if ((p1.currentMoveConnects != 0 && IsMoveAttack(p1CurrentMove))
+			&& (p2.currentMoveConnects == 0)) {
+			p1FrameAdvantage = p2.animLength - (p1.animLength - p1CurrentMove.first_active_frame);
+			p2FrameAdvantage = p1FrameAdvantage * -1;
 		}
+		else {
+			// Only p2 connects with p1.
+			if ((p1.currentMoveConnects == 0)
+				&& (p2.currentMoveConnects != 0 && IsMoveAttack(p2CurrentMove))) {
+				p2FrameAdvantage = p1.animLength - (p2.animLength - p2CurrentMove.first_active_frame);
+				p1FrameAdvantage = p2FrameAdvantage * -1;
+			}
+			// p1 and p2 both connect with each other.
+			else {
+				p1FrameAdvantage = (p2.animLength - p2CurrentMove.first_active_frame) - (p1.animLength - p1CurrentMove.first_active_frame);
+				p2FrameAdvantage = (p1.animLength - p1CurrentMove.first_active_frame) - (p2.animLength - p2CurrentMove.first_active_frame);
+			}
+		}
+
+
+			
+
+		p1OverlayData.frameAdvantage = p1FrameAdvantage;
+		p2OverlayData.frameAdvantage = p2FrameAdvantage;
+
+		p1.lastMoveId = p1.currentMoveId;
+		p2.lastMoveId = p2.currentMoveId;
+	}
 
 }
 
@@ -281,6 +298,108 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 
 void T5DROverlay::SetFirstRunFalse() {
 	isFirstRun = false;
+}
+
+void T5DROverlay::QueryCancelsForPlayer(Player& player, gameAddr relPlayerAddress) {
+	GameAddresses gameAddresses;
+	T5DRAddresses t5drAddresses;
+
+	gameAddr playerAddress = gameAddresses.rpcs3_addr + relPlayerAddress;
+
+	// Address in p1's object that holds the address of p1's moveset table of contents.
+	gameAddr playerMovesetTOCPointerAddress = playerAddress + t5drAddresses.t5_moveset_toc_address_offset;
+
+	// Address of moveset table of contents.
+	// Changed return type to int because for some characters (e.g. Bryan) the value at the address is negative before the conversion to little endian.
+	int playerMovesetTOCAddress = memory.ReadInt(processHandle, playerMovesetTOCPointerAddress, 4);
+
+	// Address will be in little endian. Needs to be swapped to big endian.
+	ByteswapHelpers::SWAP_INT32(&playerMovesetTOCAddress);
+
+	// Calculate address for pointer to extra properties address. Also calculate address where extra properties count is held.
+	gameAddr playerCancelsPointerAddress = gameAddresses.rpcs3_addr + playerMovesetTOCAddress + t5drAddresses.t5_moveset_toc_cancels_adress_offset;
+	gameAddr playerCancelsCountAddress = gameAddresses.rpcs3_addr + playerMovesetTOCAddress + t5drAddresses.t5_moveset_toc_cancels_adress_offset + 0x4;
+
+	// Read extra properties address at pointer. Read extra properties count.
+	// Changed return type to int because for some characters (e.g. Bryan) the value at the address is negative before the conversion to little endian.
+	int playerCancelsAdress = memory.ReadInt(processHandle, playerCancelsPointerAddress, 4);
+	player.cancelsCount = memory.ReadInt(processHandle, playerCancelsCountAddress, 4);
+
+	// Address and count will be in big endian. Needs to be swapped to little endian.
+	ByteswapHelpers::SWAP_INT32(&playerCancelsAdress);
+	ByteswapHelpers::SWAP_INT32(&player.cancelsCount);
+
+	SIZE_T cancelsSize = sizeof(Cancel);
+	// Allocate memory for whole extra properties.
+	player.cancelsBlock = (Byte*)malloc(player.cancelsCount * cancelsSize);
+
+	// Read whole extra properties.
+	memory.ReadBytes(processHandle, player.cancelsBlock, gameAddresses.rpcs3_addr + playerCancelsAdress, player.cancelsCount * cancelsSize);
+
+	// Go through extra properties and convert big endian to little endian.
+	for (auto& cancel : StructIterator<Cancel>(player.cancelsBlock, player.cancelsCount))
+	{
+		ByteswapHelpers::SWAP_INT16(&cancel.direction);
+		ByteswapHelpers::SWAP_INT16(&cancel.button);
+		ByteswapHelpers::SWAP_INT32(&cancel.requirements_addr);
+		ByteswapHelpers::SWAP_INT32(&cancel.move_id);
+		ByteswapHelpers::SWAP_INT32(&cancel.extradata_addr);
+		ByteswapHelpers::SWAP_INT16(&cancel.detection_start);
+		ByteswapHelpers::SWAP_INT16(&cancel.detection_end);
+		ByteswapHelpers::SWAP_INT16(&cancel.starting_frame);
+		ByteswapHelpers::SWAP_INT16(&cancel.cancel_option);
+	}
+
+	player.cancelAddress = playerCancelsAdress;
+}
+
+void T5DROverlay::QueryCancels() {
+	T5DRAddresses t5drAddresses;
+
+	QueryCancelsForPlayer(p1, t5drAddresses.t5dr_p1_addr);
+	QueryCancelsForPlayer(p2, t5drAddresses.t5dr_p1_addr + t5drAddresses.t5_playerstruct_size_offset);
+}
+
+
+void T5DROverlay::CreateCancelsMapForPlayer(Player& player) {
+	uint16_t assignedCancelId = 0;
+
+
+	for (auto& cancel : StructIterator<Cancel>(player.cancelsBlock, player.cancelsCount))
+	{
+		player.cancelsMap[assignedCancelId] = cancel;
+		assignedCancelId++;
+	}
+}
+
+void T5DROverlay::CreateCancelsMap() {
+	CreateCancelsMapForPlayer(p1);
+	CreateCancelsMapForPlayer(p2);
+}
+
+
+std::map<uint16_t, Cancel> T5DROverlay::QueryCancelsOfMove(Player& player, gameAddr moveCancelAddress) {
+
+	SIZE_T cancelSize = sizeof(Cancel);
+	// Start index.
+	uint32_t indexCancelOfMove = (moveCancelAddress - player.cancelAddress) / cancelSize;
+
+	std::map<uint16_t, Cancel> moveCancelMap;
+	uint32_t moveCancelIndex{ 0 };
+
+	bool hasNextItem{ false };
+
+	do {
+
+		moveCancelMap[moveCancelIndex] = player.cancelsMap.at(indexCancelOfMove);
+
+		hasNextItem = moveCancelMap[moveCancelIndex].command != 32768;  // 0x8000: End of cancel list
+		moveCancelIndex++;
+		indexCancelOfMove++;
+
+	} while ((indexCancelOfMove < player.cancelsCount) && hasNextItem);
+
+	return moveCancelMap;
 }
 
 
@@ -375,7 +494,7 @@ std::map<uint16_t, ExtraMoveProperty> T5DROverlay::QueryExtraPropertyOfMove(Play
 
 		moveExtraPropsMap[moveExtraPropsIndex] = player.extraPropsMap.at(indexExtraPropsOfMove);
 
-		hasNextItem = moveExtraPropsMap[moveExtraPropsIndex].starting_frame != 0;
+		hasNextItem = moveExtraPropsMap[moveExtraPropsIndex].starting_frame != 0;  // end of extra properties list
 		moveExtraPropsIndex++;
 		indexExtraPropsOfMove++;
 
