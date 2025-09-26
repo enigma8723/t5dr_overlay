@@ -202,11 +202,19 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 		printf("");
 	}
 
+	std::map<uint16_t, Cancel> p1MoveCancelMap;
+	std::map<uint16_t, Cancel> p2MoveCancelMap;
+
 	std::map<uint16_t, ExtraMoveProperty> p1MoveExtraPropsMap;
 	std::map<uint16_t, ExtraMoveProperty> p2MoveExtraPropsMap;
 
-	std::map<uint16_t, Cancel> p1MoveCancelMap;
-	std::map<uint16_t, Cancel> p2MoveCancelMap;
+	if (p1CurrentMove.cancel_addr != 0) {
+		p1MoveCancelMap = QueryCancelsOfMove(p1, p1CurrentMove.cancel_addr);
+	}
+
+	if (p2CurrentMove.cancel_addr != 0) {
+		p2MoveCancelMap = QueryCancelsOfMove(p2, p2CurrentMove.cancel_addr);
+	}
 
 	// Get extra properties list of current move.
 	// Unfortunately extra property id 0x82c8 (fake recovery frames) doesn't exist in T5DR.
@@ -219,17 +227,6 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 	if (p2CurrentMove.extra_move_property_addr != 0) {
 		p2MoveExtraPropsMap = QueryExtraPropertyOfMove(p2, p2CurrentMove.extra_move_property_addr);
 	}
-
-	
-	if (p1CurrentMove.cancel_addr != 0) {
-		p1MoveCancelMap = QueryCancelsOfMove(p1, p1CurrentMove.cancel_addr);
-	}
-
-	if (p2CurrentMove.cancel_addr != 0) {
-		p2MoveCancelMap = QueryCancelsOfMove(p2, p2CurrentMove.cancel_addr);
-	}
-
-
 
 	int16_t p1FrameAdvantage = 0;
 	int16_t p2FrameAdvantage = 0;
@@ -348,6 +345,11 @@ void T5DROverlay::QueryCancelsForPlayer(Player& player, gameAddr relPlayerAddres
 		ByteswapHelpers::SWAP_INT16(&cancel.detection_end);
 		ByteswapHelpers::SWAP_INT16(&cancel.starting_frame);
 		ByteswapHelpers::SWAP_INT16(&cancel.cancel_option);
+
+		// For some reason the move id is displayed with a multiplier of 65536.
+		// E.g. move id 32769 is displayed as 2147549184. Move id 416 as 27525120.
+		// Therefore division of the move id here by 65536 to get the actual move id.
+		cancel.move_id /= 65536;
 	}
 
 	player.cancelAddress = playerCancelsAdress;
