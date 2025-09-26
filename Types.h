@@ -39,32 +39,6 @@ struct Move
 	uint16_t distance;
 };
 
-struct Player {
-	uint16_t currentMoveId;
-	uint16_t lastMoveId;
-	uint16_t animLength;
-	uint32_t currentMoveConnects;
-	uint32_t lastMoveConnected;
-
-	Byte* movesetBlock;
-	uint32_t moveCount;
-
-	Byte* extraPropsBlock;
-	uint32_t extraPropsCount;
-
-	// Create dictionary for mapping the move ids to the moves.
-	std::map<uint16_t, Move> movesMap;
-};
-
-struct OverlayData {
-	uint16_t currentMoveId;
-	uint16_t firstActiveFrame;
-	uint16_t lastActiveFrame;
-	int16_t frameAdvantage;
-	uint32_t animLength;
-	uint32_t currentMoveConnects;
-};
-
 struct ExtraMoveProperty
 {
 	uint16_t starting_frame;
@@ -75,4 +49,32 @@ struct ExtraMoveProperty
 		int32_t value_signed;
 		float value_float;
 	};
+};
+
+struct Player {
+	uint16_t currentMoveId;
+	uint16_t lastMoveId;
+	uint16_t animLength;
+	uint32_t currentMoveConnects;
+	uint32_t lastMoveConnected;
+	gameAddr extraPropsAddress; // beginning of extra properties list
+
+	Byte* movesetBlock;
+	uint32_t moveCount;
+
+	Byte* extraPropsBlock;
+	uint32_t extraPropsCount;
+
+	// Create dictionary for mapping the move ids to the moves.
+	std::map<uint16_t, Move> movesMap;
+	std::map<uint16_t, ExtraMoveProperty> extraPropsMap;
+};
+
+struct OverlayData {
+	uint16_t currentMoveId;
+	uint16_t firstActiveFrame;
+	uint16_t lastActiveFrame;
+	int16_t frameAdvantage;
+	uint32_t animLength;
+	uint32_t currentMoveConnects;
 };

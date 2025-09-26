@@ -31,6 +31,7 @@ void PrepareOverlay() {
     t5DROverlay.QueryMovelists();
     t5DROverlay.CreateMovelistMap();
     t5DROverlay.QueryExtraProperties();
+    t5DROverlay.CreateExtraPropertiesMap();
 }
 
 void FetchOverlayData()

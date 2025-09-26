@@ -197,15 +197,19 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 	Move p1CurrentMove = p1.movesMap.at(p1CurrentMoveIdCorrected);
 	Move p2CurrentMove = p2.movesMap.at(p2CurrentMoveIdCorrected);
 
-	ExtraMoveProperty p1ExtraProps{ 0 };
-	ExtraMoveProperty p2ExtraProps{ 0 };
+	std::map<uint16_t, ExtraMoveProperty> p1MoveExtraPropsMap;
+	std::map<uint16_t, ExtraMoveProperty> p2MoveExtraPropsMap;
 
+	// Get extra properties list of current move.
+	// Unfortunately extra property id 0x82c8 (fake recovery frames) doesn't exist in T5DR.
+	// In T7 it is used to signal to the frame data display after how many frames a cancel into an attack is possible.
+	// It is used to calculate frame advantage. For T5DR another way has to be found.
 	if (p1CurrentMove.extra_move_property_addr != 0) {
-		p1ExtraProps = QueryExtraPropertyOfMove(p1CurrentMove.extra_move_property_addr);
+		p1MoveExtraPropsMap = QueryExtraPropertyOfMove(p1, p1CurrentMove.extra_move_property_addr);
 	}
 
 	if (p2CurrentMove.extra_move_property_addr != 0) {
-		p2ExtraProps = QueryExtraPropertyOfMove(p2CurrentMove.extra_move_property_addr);
+		p2MoveExtraPropsMap = QueryExtraPropertyOfMove(p2, p2CurrentMove.extra_move_property_addr);
 	}
 
 		int16_t p1FrameAdvantage = 0;
@@ -324,7 +328,7 @@ void T5DROverlay::QueryExtraPropsForPlayer(Player& player, gameAddr relPlayerAdd
 		ByteswapHelpers::SWAP_INT32(&extraProp.value_unsigned);
 	}
 
-
+	player.extraPropsAddress = playerExtraPropertiesAdress;
 }
 
 void T5DROverlay::QueryExtraProperties() {
@@ -334,31 +338,48 @@ void T5DROverlay::QueryExtraProperties() {
 	QueryExtraPropsForPlayer(p2, t5drAddresses.t5dr_p1_addr + t5drAddresses.t5_playerstruct_size_offset);
 }
 
-ExtraMoveProperty T5DROverlay::QueryExtraPropertyOfMove(gameAddr extraPropsAddress) {
-	GameAddresses gameAddresses;
+void T5DROverlay::CreateExtraPropertiesMapForPlayer(Player& player) {
+	uint16_t assignedExtraPropId = 0;
 
-	// @todo: Actually there's a list from the address onwards. It goes from the property at the address until
-	// a property with starting_frame = 0 is found.
-	// See function of Tekken Moveset Extractor:
-	// std::vector<InputMap> EditorT7::GetExtrapropListInputs(uint16_t id, VectorSet<std::string>& drawOrder)
-	// Editor_t7_Forms.cpp
-	SIZE_T extraPropsSize = sizeof(ExtraMoveProperty);
-	// Allocate memory for whole extra properties.
-	Byte * extraPropsBlock = (Byte*)malloc(extraPropsSize);
 
-	// Read whole extra properties.
-	memory.ReadBytes(processHandle, extraPropsBlock, gameAddresses.rpcs3_addr + extraPropsAddress, extraPropsSize);
-
-	// Go through extra properties and convert big endian to little endian.
-	for (auto& extraProp : StructIterator<ExtraMoveProperty>(extraPropsBlock, 1))
+	for (auto& extraProp : StructIterator<ExtraMoveProperty>(player.extraPropsBlock, player.extraPropsCount))
 	{
-		ByteswapHelpers::SWAP_INT16(&extraProp.starting_frame);
-		ByteswapHelpers::SWAP_INT16(&extraProp.id);
-		ByteswapHelpers::SWAP_INT32(&extraProp.value_unsigned);
+		player.extraPropsMap[assignedExtraPropId] = extraProp;
+		assignedExtraPropId++;
 	}
+}
 
-	ExtraMoveProperty extraPropFinal;
-	std::memcpy(&extraPropFinal, extraPropsBlock, sizeof(ExtraMoveProperty));
 
-	return extraPropFinal;
+void T5DROverlay::CreateExtraPropertiesMap() {
+	CreateExtraPropertiesMapForPlayer(p1);
+	CreateExtraPropertiesMapForPlayer(p2);
+}
+
+// Actually there's a list from the extra property address onwards. It goes from the property at the address until
+// a property with starting_frame = 0 is found.
+// See function of Tekken Moveset Extractor:
+// std::vector<InputMap> EditorT7::GetExtrapropListInputs(uint16_t id, VectorSet<std::string>& drawOrder)
+// Editor_t7_Forms.cpp
+std::map<uint16_t, ExtraMoveProperty> T5DROverlay::QueryExtraPropertyOfMove(Player& player, gameAddr moveExtraPropsAddress) {
+
+	SIZE_T extraPropsSize = sizeof(ExtraMoveProperty);
+	// Start index.
+	uint32_t indexExtraPropsOfMove = (moveExtraPropsAddress - player.extraPropsAddress) / extraPropsSize;
+
+	std::map<uint16_t, ExtraMoveProperty> moveExtraPropsMap;
+	uint32_t moveExtraPropsIndex{ 0 };
+
+	bool hasNextItem{ false };
+
+	do {
+
+		moveExtraPropsMap[moveExtraPropsIndex] = player.extraPropsMap.at(indexExtraPropsOfMove);
+
+		hasNextItem = moveExtraPropsMap[moveExtraPropsIndex].starting_frame != 0;
+		moveExtraPropsIndex++;
+		indexExtraPropsOfMove++;
+
+	} while ((indexExtraPropsOfMove < player.extraPropsCount) && hasNextItem);
+
+	return moveExtraPropsMap;
 }

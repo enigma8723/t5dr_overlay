@@ -19,12 +19,16 @@ private:
 
 	bool isFirstRun;
 
+
 	void QueryMovelistForPlayer(Player& player, gameAddr playerAddress);
 	void CreateMovelistMapForPlayer(Player& player);
 	bool IsMoveAttack(Move move);
 
 	void QueryExtraPropsForPlayer(Player& player, gameAddr relPlayerAddress);
-	ExtraMoveProperty QueryExtraPropertyOfMove(gameAddr extraPropsAddress);
+	void CreateExtraPropertiesMapForPlayer(Player& player);
+
+
+	std::map<uint16_t, ExtraMoveProperty> QueryExtraPropertyOfMove(Player& player, gameAddr extraPropsAddress);
 
 public:
 
@@ -52,5 +56,6 @@ public:
 	
 	void QueryExtraProperties();
 
+	void CreateExtraPropertiesMap();
 
 };
