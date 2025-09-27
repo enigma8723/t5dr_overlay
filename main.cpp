@@ -5,6 +5,7 @@
 #include <windows.h>
 #include <chrono>
 #include <thread>
+#include <mutex>
 
 #include "Types.h"
 #include "T5DR_Overlay.h"
@@ -14,6 +15,8 @@ const wchar_t* g_szClassName = L"myWindowClass";
 T5DROverlay t5DROverlay;
 OverlayData p1OverlayData{ 0 }, p2OverlayData{ 0 }, p1LastOverlayData{ 0 }, p2LastOverlayData{ 0 };
 std::thread* subThread;
+
+std::mutex mu;
 
 bool OverlayNeedsUpdate(OverlayData overlayData, OverlayData lastOverlayData) {
     return !(
@@ -36,8 +39,7 @@ void PrepareOverlay() {
     t5DROverlay.CreateExtraPropertiesMap();
 }
 
-void FetchOverlayData()
-{
+void FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2OverlayData) {
 
     t5DROverlay.QueryCurrentMoveInfo();
     t5DROverlay.FetchOverlayData(p1OverlayData, p2OverlayData);
@@ -46,15 +48,17 @@ void FetchOverlayData()
 }
 
 
-void UpdateOverlay(HWND hwnd) {
+void UpdateOverlay(HWND hwnd, OverlayData* p1OverlayData, OverlayData* p1LastOverlayData, OverlayData* p2OverlayData, OverlayData* p2LastOverlayData) {
 
     //auto start = std::chrono::steady_clock::now();
 
     while (true) {
-        FetchOverlayData();
+        mu.lock();
+        FetchOverlayData(*p1OverlayData, *p2OverlayData);
+        mu.unlock();
 
         // Prevents window flickering.
-        if (OverlayNeedsUpdate(p1OverlayData, p1LastOverlayData) || OverlayNeedsUpdate(p2OverlayData, p2LastOverlayData)) {
+        if (OverlayNeedsUpdate(*p1OverlayData, *p1LastOverlayData) || OverlayNeedsUpdate(*p2OverlayData, *p2LastOverlayData)) {
             InvalidateRect(hwnd, NULL, TRUE);
             //UpdateWindow(hwnd);
         }
@@ -96,6 +100,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
             p2PlusSymbol = "+";
         }
 
+        mu.lock();
         overlayString = "p1 move id: " + std::to_string(p1OverlayData.currentMoveId) + "\n";
         overlayString += "p1 active frames: " + std::to_string(p1OverlayData.firstActiveFrame) + " - " + std::to_string(p1OverlayData.lastActiveFrame) + "\n";
         overlayString += "p1 frame advantage: " + p1PlusSymbol + std::to_string(p1OverlayData.frameAdvantage) + "\n";
@@ -110,6 +115,7 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam)
 
         p1LastOverlayData = p1OverlayData;
         p2LastOverlayData = p2OverlayData;
+        mu.unlock();
 
         DrawText(hdc, widestr.c_str(), -1, &rect, DT_EDITCONTROL | DT_NOCLIP | DT_CENTER | DT_VCENTER);
         EndPaint(hwnd, &ps);
@@ -174,7 +180,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
 
     // Constructs the new thread and runs it. Does not block execution.
-    std::thread sub(UpdateOverlay, hwnd);
+    std::thread sub(UpdateOverlay, hwnd, &p1OverlayData, &p1LastOverlayData, &p2OverlayData, &p2LastOverlayData);
     subThread = &sub;
 
     // Step 3: The Message Loop

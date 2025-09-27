@@ -158,7 +158,11 @@ bool T5DROverlay::IsMoveAttack(Move move) {
 	return (move.hitlevel != 0) || (move.hitbox_location != 0) || (move.first_active_frame != 0) || (move.last_active_frame != 0);
 }
 
-bool T5DROverlay::IsMoveStanceCanceledInto(Player& player, Move move, uint32_t lastMoveCancelsId) {
+bool T5DROverlay::IsMoveStanceCanceledInto(Player& player, Move move, uint16_t moveId) {
+
+	if (player.lastMoveId == 0 || moveId == 0) {
+		return false;
+	}
 
 	std::map<uint16_t, Cancel> lastMoveCancelsMap = QueryCancelsOfMove(player, player.movesMap.at(player.lastMoveId).cancel_addr);
 
@@ -169,9 +173,40 @@ bool T5DROverlay::IsMoveStanceCanceledInto(Player& player, Move move, uint32_t l
 	for (auto const& cancel : lastMoveCancelsMap)
 	{
 		moveFoundOnLastMoveCancelList = (cancel.second.move_id == player.currentMoveId);
+
+		if (moveFoundOnLastMoveCancelList) {
+			break;
+		}
 	}
 
 	return (moveFoundOnLastMoveCancelList && (move.first_active_frame == 0) && (move.last_active_frame == 0));
+}
+
+uint16_t T5DROverlay::GetFramesOfLastMoveFastestCancel(Player& player) {
+	std::map<uint16_t, Cancel> lastMoveCancelsMap = QueryCancelsOfMove(player, player.movesMap.at(player.lastMoveId).cancel_addr);
+
+	uint16_t frames{ 65535 };
+
+	// cancel.first is the map item's key.
+	// cancel.second is the map item's value.
+	for (auto const& cancel : lastMoveCancelsMap)
+	{
+		if (cancel.second.starting_frame < frames) {
+			frames = cancel.second.starting_frame;
+		}
+
+	}
+
+	return frames;
+}
+
+uint16_t T5DROverlay::GetFramesOfLastCancel(Player& player, uint16_t moveId) {
+	std::map<uint16_t, Cancel> lastMoveCancelsMap = QueryCancelsOfMove(player, player.movesMap.at(moveId).cancel_addr);
+
+	// Last item in cancels list.
+	auto lastItem = std::prev(lastMoveCancelsMap.end());
+
+	return lastItem->second.starting_frame;;
 }
 
 void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2OverlayData) {
@@ -212,8 +247,13 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 	Move p1CurrentMove = p1.movesMap.at(p1CurrentMoveIdCorrected);
 	Move p2CurrentMove = p2.movesMap.at(p2CurrentMoveIdCorrected);
 
-
+	// debug.
 	if (p1.currentMoveId == 419) {
+		printf("");
+	}
+
+	// debug.
+	if (p2.currentMoveId == 546) {
 		printf("");
 	}
 
@@ -243,56 +283,126 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 		p2MoveExtraPropsMap = QueryExtraPropertyOfMove(p2, p2CurrentMove.extra_move_property_addr);
 	}
 
+	bool caseP1AttackConnects = (p1.currentMoveConnects != 0 && IsMoveAttack(p1CurrentMove) && p2.currentMoveConnects == 0);
+	bool caseP2AttackConnects = (p2.currentMoveConnects != 0 && IsMoveAttack(p2CurrentMove) && p1.currentMoveConnects == 0);
+	bool caseBothAttacksConnect = (p1.currentMoveConnects != 0 && IsMoveAttack(p1CurrentMove) && p2.currentMoveConnects != 0 && IsMoveAttack(p2CurrentMove));
+	bool caseP1StanceCanceled = (p1.currentMoveConnects != 0 && IsMoveStanceCanceledInto(p1, p1CurrentMove, p1CurrentMoveIdCorrected) && p2.currentMoveConnects == 0);
+	bool caseP2StanceCanceled = (p2.currentMoveConnects != 0 && IsMoveStanceCanceledInto(p2, p2CurrentMove, p2CurrentMoveIdCorrected) && p1.currentMoveConnects == 0);
+	// This is not possible (because both players will be in recovery):
+	//bool caseBothStanceCanceled = (p1.currentMoveConnects != 0 && IsMoveStanceCanceledInto(p1, p1CurrentMove) && p2.currentMoveConnects != 0 && IsMoveStanceCanceledInto(p2, p2CurrentMove));
+
+
 	int16_t p1FrameAdvantage = 0;
 	int16_t p2FrameAdvantage = 0;
 
 	// @todo: Add frame data overlay for p2.
 	// @todo: Unsure how to handle move cancels like d/f+1 -> b
 	// If p1 move connects, p1 move has a hitbox and p2 is not executing the same move as before (e.g. first p1 move was blocked, now it hits).
-	if ((p1.currentMoveConnects != 0 && IsMoveAttack(p1CurrentMove))
-		|| (p2.currentMoveConnects != 0 && IsMoveAttack(p2CurrentMove))) {
+	if ((caseP1AttackConnects || caseP1StanceCanceled) || (caseP2AttackConnects || caseP2StanceCanceled) || (caseBothAttacksConnect /* || caseBothStanceCanceled*/)) {
 			
 		p1OverlayData.currentMoveId = p1.currentMoveId;
 		p1OverlayData.firstActiveFrame = p1CurrentMove.first_active_frame;
 		p1OverlayData.lastActiveFrame = p1CurrentMove.last_active_frame;
-		p1OverlayData.animLength = p1.animLength;
+		p1OverlayData.animLength = GetFramesOfLastCancel(p1, p1CurrentMoveIdCorrected);
 		p1OverlayData.currentMoveConnects = p1.currentMoveConnects;
 
 		p2OverlayData.currentMoveId = p2.currentMoveId;
 		p2OverlayData.firstActiveFrame = p2CurrentMove.first_active_frame;
 		p2OverlayData.lastActiveFrame = p2CurrentMove.last_active_frame;
-		p2OverlayData.animLength = p2.animLength;
+		p2OverlayData.animLength = GetFramesOfLastCancel(p2, p2CurrentMoveIdCorrected);
 		p2OverlayData.currentMoveConnects = p2.currentMoveConnects;
+
+	
+		bool frameAdvantagesNeedCalculation = true;
 
 		// @todo: first_active_frame needs to be changed to the frame the move hit on.
 		// Only p1 connects with p2.
-		if ((p1.currentMoveConnects != 0 && IsMoveAttack(p1CurrentMove))
-			&& (p2.currentMoveConnects == 0)) {
+		if (frameAdvantagesNeedCalculation && caseP1AttackConnects) {
+			p1.animLength = GetFramesOfLastCancel(p1, p1CurrentMoveIdCorrected);
+			p2.animLength = GetFramesOfLastCancel(p1, p2CurrentMoveIdCorrected);
+
 			p1FrameAdvantage = p2.animLength - (p1.animLength - p1CurrentMove.first_active_frame);
 			p2FrameAdvantage = p1FrameAdvantage * -1;
-		}
-		else {
-			// Only p2 connects with p1.
-			if ((p1.currentMoveConnects == 0)
-				&& (p2.currentMoveConnects != 0 && IsMoveAttack(p2CurrentMove))) {
-				p2FrameAdvantage = p1.animLength - (p2.animLength - p2CurrentMove.first_active_frame);
-				p1FrameAdvantage = p2FrameAdvantage * -1;
-			}
-			// p1 and p2 both connect with each other.
-			else {
-				p1FrameAdvantage = (p2.animLength - p2CurrentMove.first_active_frame) - (p1.animLength - p1CurrentMove.first_active_frame);
-				p2FrameAdvantage = (p1.animLength - p1CurrentMove.first_active_frame) - (p2.animLength - p2CurrentMove.first_active_frame);
-			}
+
+			p2OverlayData.firstActiveFrame = 0;
+			p2OverlayData.lastActiveFrame = 0;
+			p2OverlayData.animLength = p2.animLength;
+
+			p1.lastMoveId = p1CurrentMoveIdCorrected;
+			p2.lastMoveId = p2CurrentMoveIdCorrected;
+
+			frameAdvantagesNeedCalculation = false;
 		}
 
+		// Only p2 connects with p1.
+		if (frameAdvantagesNeedCalculation && caseP2AttackConnects) {
+			p2.animLength = GetFramesOfLastCancel(p2, p2CurrentMoveIdCorrected);
+			p1.animLength = GetFramesOfLastCancel(p2, p1CurrentMoveIdCorrected);
 
-			
+			p2FrameAdvantage = p1.animLength - (p2.animLength - p2CurrentMove.first_active_frame);
+			p1FrameAdvantage = p2FrameAdvantage * -1;
+
+			p1OverlayData.firstActiveFrame = 0;
+			p1OverlayData.lastActiveFrame = 0;
+			p1OverlayData.animLength = p1.animLength;
+
+			p1.lastMoveId = p1CurrentMoveIdCorrected;
+			p2.lastMoveId = p2CurrentMoveIdCorrected;
+
+			frameAdvantagesNeedCalculation = false;
+		}
+
+		// p1 and p2 both connect with each other.
+		if (frameAdvantagesNeedCalculation && caseBothAttacksConnect) {
+			p1.animLength = GetFramesOfLastCancel(p2, p1CurrentMoveIdCorrected);
+			p2.animLength = GetFramesOfLastCancel(p1, p2CurrentMoveIdCorrected);
+
+			p1FrameAdvantage = (p2.animLength - p2CurrentMove.first_active_frame) - (p1.animLength - p1CurrentMove.first_active_frame);
+			p2FrameAdvantage = (p1.animLength - p1CurrentMove.first_active_frame) - (p2.animLength - p2CurrentMove.first_active_frame);
+
+			p1OverlayData.firstActiveFrame = 0;
+			p1OverlayData.lastActiveFrame = 0;
+			p2OverlayData.firstActiveFrame = 0;
+			p2OverlayData.lastActiveFrame = 0;
+			p1OverlayData.animLength = p1.animLength;
+			p2OverlayData.animLength = p2.animLength;
+
+			p1.lastMoveId = p1CurrentMoveIdCorrected;
+			p2.lastMoveId = p2CurrentMoveIdCorrected;
+
+			frameAdvantagesNeedCalculation = false;
+		}
+
+		if (frameAdvantagesNeedCalculation && caseP1StanceCanceled) {
+			p1FrameAdvantage = p2.animLength - GetFramesOfLastMoveFastestCancel(p1);
+			p2FrameAdvantage = p1FrameAdvantage * -1;
+
+			p2OverlayData.firstActiveFrame = 0;
+			p2OverlayData.lastActiveFrame = 0;
+
+			p1.lastMoveId = 0;
+			p2.lastMoveId = 0;
+
+			frameAdvantagesNeedCalculation = false;
+		}
+
+		if (frameAdvantagesNeedCalculation && caseP2StanceCanceled) {
+			p2FrameAdvantage = p1.animLength - GetFramesOfLastMoveFastestCancel(p2);
+			p1FrameAdvantage = p2FrameAdvantage * -1;
+
+			p1OverlayData.firstActiveFrame = 0;
+			p1OverlayData.lastActiveFrame = 0;
+
+			p1.lastMoveId = 0;
+			p2.lastMoveId = 0;
+
+			frameAdvantagesNeedCalculation = false;
+		}
 
 		p1OverlayData.frameAdvantage = p1FrameAdvantage;
 		p2OverlayData.frameAdvantage = p2FrameAdvantage;
 
-		p1.lastMoveId = p1.currentMoveId;
-		p2.lastMoveId = p2.currentMoveId;
+
 	}
 
 }
