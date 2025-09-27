@@ -74,6 +74,7 @@ struct ExtraMoveProperty
 struct Player {
 	uint16_t currentMoveId;
 	uint16_t lastMoveId;
+	uint32_t lastMoveCancelsId;  // last move's cancel list id
 	uint16_t animLength;
 	uint32_t currentMoveConnects;
 	uint32_t lastMoveConnected;

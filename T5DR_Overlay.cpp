@@ -158,6 +158,21 @@ bool T5DROverlay::IsMoveAttack(Move move) {
 	return (move.hitlevel != 0) || (move.hitbox_location != 0) || (move.first_active_frame != 0) || (move.last_active_frame != 0);
 }
 
+bool T5DROverlay::IsMoveStanceCanceledInto(Player& player, Move move, uint32_t lastMoveCancelsId) {
+
+	std::map<uint16_t, Cancel> lastMoveCancelsMap = QueryCancelsOfMove(player, player.movesMap.at(player.lastMoveId).cancel_addr);
+
+	bool moveFoundOnLastMoveCancelList{ false };
+
+	// cancel.first is the map item's key.
+	// cancel.second is the map item's value.
+	for (auto const& cancel : lastMoveCancelsMap)
+	{
+		moveFoundOnLastMoveCancelList = (cancel.second.move_id == player.currentMoveId);
+	}
+
+	return (moveFoundOnLastMoveCancelList && (move.first_active_frame == 0) && (move.last_active_frame == 0));
+}
 
 void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2OverlayData) {
 

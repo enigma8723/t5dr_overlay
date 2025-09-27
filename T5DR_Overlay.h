@@ -23,6 +23,7 @@ private:
 	void QueryMovelistForPlayer(Player& player, gameAddr playerAddress);
 	void CreateMovelistMapForPlayer(Player& player);
 	bool IsMoveAttack(Move move);
+	bool IsMoveStanceCanceledInto(Player& player, Move move, uint32_t lastMoveCancelsId);
 
 	void QueryCancelsForPlayer(Player& player, gameAddr relPlayerAddress);
 	void CreateCancelsMapForPlayer(Player& player);
