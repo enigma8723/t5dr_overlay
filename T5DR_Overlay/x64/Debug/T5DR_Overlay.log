@@ -1,6 +1,6 @@
 ﻿  T5DR_Overlay.cpp
-I:\Programming\T5DR_Overlay\T5DR_Overlay.cpp(387,29): warning C4244: 'initializing': conversion from 'gameAddr' to 'uint32_t', possible loss of data
-I:\Programming\T5DR_Overlay\T5DR_Overlay.cpp(488,33): warning C4244: 'initializing': conversion from 'gameAddr' to 'uint32_t', possible loss of data
+I:\Programming\T5DR_Overlay\T5DR_Overlay.cpp(527,29): warning C4244: 'initializing': conversion from 'gameAddr' to 'uint32_t', possible loss of data
+I:\Programming\T5DR_Overlay\T5DR_Overlay.cpp(628,33): warning C4244: 'initializing': conversion from 'gameAddr' to 'uint32_t', possible loss of data
   T5DR_Overlay.vcxproj -> I:\Programming\T5DR_Overlay\x64\Debug\T5DR_Overlay.exe
   Der Befehl "pwsh.exe" ist entweder falsch geschrieben oder
   konnte nicht gefunden werden.

@@ -155,7 +155,7 @@ void T5DROverlay::CreateMovelistMap() {
 }
 
 bool T5DROverlay::IsMoveAttack(Move move) {
-	return (move.hitlevel != 0) || (move.hitbox_location != 0) || (move.first_active_frame != 0) || (move.last_active_frame != 0);
+	return /*(move.hitlevel != 0) || (move.hitbox_location != 0) || */ (move.first_active_frame != 0) || (move.last_active_frame != 0);
 }
 
 bool T5DROverlay::IsMoveStanceCanceledInto(Player& player, Move move, uint16_t moveId) {
@@ -182,8 +182,8 @@ bool T5DROverlay::IsMoveStanceCanceledInto(Player& player, Move move, uint16_t m
 	return (moveFoundOnLastMoveCancelList && (move.first_active_frame == 0) && (move.last_active_frame == 0));
 }
 
-uint16_t T5DROverlay::GetFramesOfLastMoveFastestCancel(Player& player) {
-	std::map<uint16_t, Cancel> lastMoveCancelsMap = QueryCancelsOfMove(player, player.movesMap.at(player.lastMoveId).cancel_addr);
+uint16_t T5DROverlay::GetFramesOfFastestCancel(Player& player, uint16_t moveId) {
+	std::map<uint16_t, Cancel> lastMoveCancelsMap = QueryCancelsOfMove(player, player.movesMap.at(moveId).cancel_addr);
 
 	uint16_t frames{ 65535 };
 
@@ -300,6 +300,11 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 	// If p1 move connects, p1 move has a hitbox and p2 is not executing the same move as before (e.g. first p1 move was blocked, now it hits).
 	if ((caseP1AttackConnects || caseP1StanceCanceled) || (caseP2AttackConnects || caseP2StanceCanceled) || (caseBothAttacksConnect /* || caseBothStanceCanceled*/)) {
 			
+		// debug.
+		if (p1.currentMoveId == 420) {
+			printf("");
+		}
+
 		p1OverlayData.currentMoveId = p1.currentMoveId;
 		p1OverlayData.firstActiveFrame = p1CurrentMove.first_active_frame;
 		p1OverlayData.lastActiveFrame = p1CurrentMove.last_active_frame;
@@ -374,11 +379,18 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 		}
 
 		if (frameAdvantagesNeedCalculation && caseP1StanceCanceled) {
-			p1FrameAdvantage = p2.animLength - GetFramesOfLastMoveFastestCancel(p1);
+			p2.animLength = GetFramesOfLastCancel(p1, p2CurrentMoveIdCorrected);
+
+			// @todo: Subtract also (last move's cancel starting frames - last move's first active frame).
+			// E.g. if the current move is Paul's 420, canceled from 419, then subtract from p1's frame advantage: 16-14 = 2.
+			// This is necessary because move cancels don't always happen right on or after the active frames. They can be delayed.
+			// Meaning that the opponent will already have processed some recovery frames when the cancel happens.
+			p1FrameAdvantage = p2.animLength - GetFramesOfFastestCancel(p1, p1CurrentMoveIdCorrected);
 			p2FrameAdvantage = p1FrameAdvantage * -1;
 
 			p2OverlayData.firstActiveFrame = 0;
 			p2OverlayData.lastActiveFrame = 0;
+			p2OverlayData.animLength = p2.animLength;
 
 			p1.lastMoveId = 0;
 			p2.lastMoveId = 0;
@@ -387,11 +399,14 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 		}
 
 		if (frameAdvantagesNeedCalculation && caseP2StanceCanceled) {
-			p2FrameAdvantage = p1.animLength - GetFramesOfLastMoveFastestCancel(p2);
+			p1.animLength = GetFramesOfLastCancel(p2, p1CurrentMoveIdCorrected);
+
+			p2FrameAdvantage = p1.animLength - GetFramesOfFastestCancel(p2, p2CurrentMoveIdCorrected);
 			p1FrameAdvantage = p2FrameAdvantage * -1;
 
 			p1OverlayData.firstActiveFrame = 0;
 			p1OverlayData.lastActiveFrame = 0;
+			p1OverlayData.animLength = p1.animLength;
 
 			p1.lastMoveId = 0;
 			p2.lastMoveId = 0;
@@ -402,7 +417,7 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 		p1OverlayData.frameAdvantage = p1FrameAdvantage;
 		p2OverlayData.frameAdvantage = p2FrameAdvantage;
 
-
+		// @todo: Bug: The app crashes when one does a wall combo.
 	}
 
 }
