@@ -158,13 +158,16 @@ bool T5DROverlay::IsMoveAttack(Move move) {
 	return /*(move.hitlevel != 0) || (move.hitbox_location != 0) || */ (move.first_active_frame != 0) || (move.last_active_frame != 0);
 }
 
-bool T5DROverlay::IsMoveStanceCanceledInto(Player& player, Move move, uint16_t moveId) {
+bool T5DROverlay::IsMoveStanceCanceledInto(Player& player, Move move, uint16_t moveId, uint16_t& cancelDelay) {
+
+	cancelDelay = 0;
 
 	if (player.lastMoveId == 0 || moveId == 0) {
 		return false;
 	}
 
-	std::map<uint16_t, Cancel> lastMoveCancelsMap = QueryCancelsOfMove(player, player.movesMap.at(player.lastMoveId).cancel_addr);
+	Move lastMove = player.movesMap.at(player.lastMoveId);
+	std::map<uint16_t, Cancel> lastMoveCancelsMap = QueryCancelsOfMove(player, lastMove.cancel_addr);
 
 	bool moveFoundOnLastMoveCancelList{ false };
 
@@ -175,6 +178,7 @@ bool T5DROverlay::IsMoveStanceCanceledInto(Player& player, Move move, uint16_t m
 		moveFoundOnLastMoveCancelList = (cancel.second.move_id == player.currentMoveId);
 
 		if (moveFoundOnLastMoveCancelList) {
+			cancelDelay = cancel.second.starting_frame - lastMove.first_active_frame;
 			break;
 		}
 	}
@@ -283,11 +287,15 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 		p2MoveExtraPropsMap = QueryExtraPropertyOfMove(p2, p2CurrentMove.extra_move_property_addr);
 	}
 
+	// Given as reference to function IsMoveStanceCanceledInto().
+	uint16_t p1LastMoveCancelDelay = 0;
+	uint16_t p2LastMoveCancelDelay = 0;
+
 	bool caseP1AttackConnects = (p1.currentMoveConnects != 0 && IsMoveAttack(p1CurrentMove) && p2.currentMoveConnects == 0);
 	bool caseP2AttackConnects = (p2.currentMoveConnects != 0 && IsMoveAttack(p2CurrentMove) && p1.currentMoveConnects == 0);
 	bool caseBothAttacksConnect = (p1.currentMoveConnects != 0 && IsMoveAttack(p1CurrentMove) && p2.currentMoveConnects != 0 && IsMoveAttack(p2CurrentMove));
-	bool caseP1StanceCanceled = (p1.currentMoveConnects != 0 && IsMoveStanceCanceledInto(p1, p1CurrentMove, p1CurrentMoveIdCorrected) && p2.currentMoveConnects == 0);
-	bool caseP2StanceCanceled = (p2.currentMoveConnects != 0 && IsMoveStanceCanceledInto(p2, p2CurrentMove, p2CurrentMoveIdCorrected) && p1.currentMoveConnects == 0);
+	bool caseP1StanceCanceled = (p1.currentMoveConnects != 0 && IsMoveStanceCanceledInto(p1, p1CurrentMove, p1CurrentMoveIdCorrected, p1LastMoveCancelDelay) && p2.currentMoveConnects == 0);
+	bool caseP2StanceCanceled = (p2.currentMoveConnects != 0 && IsMoveStanceCanceledInto(p2, p2CurrentMove, p2CurrentMoveIdCorrected, p2LastMoveCancelDelay) && p1.currentMoveConnects == 0);
 	// This is not possible (because both players will be in recovery):
 	//bool caseBothStanceCanceled = (p1.currentMoveConnects != 0 && IsMoveStanceCanceledInto(p1, p1CurrentMove) && p2.currentMoveConnects != 0 && IsMoveStanceCanceledInto(p2, p2CurrentMove));
 
@@ -385,7 +393,7 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 			// E.g. if the current move is Paul's 420, canceled from 419, then subtract from p1's frame advantage: 16-14 = 2.
 			// This is necessary because move cancels don't always happen right on or after the active frames. They can be delayed.
 			// Meaning that the opponent will already have processed some recovery frames when the cancel happens.
-			p1FrameAdvantage = p2.animLength - GetFramesOfFastestCancel(p1, p1CurrentMoveIdCorrected);
+			p1FrameAdvantage = p2.animLength - p1LastMoveCancelDelay - GetFramesOfFastestCancel(p1, p1CurrentMoveIdCorrected);
 			p2FrameAdvantage = p1FrameAdvantage * -1;
 
 			p2OverlayData.firstActiveFrame = 0;
@@ -401,7 +409,7 @@ void T5DROverlay::FetchOverlayData(OverlayData& p1OverlayData, OverlayData& p2Ov
 		if (frameAdvantagesNeedCalculation && caseP2StanceCanceled) {
 			p1.animLength = GetFramesOfLastCancel(p2, p1CurrentMoveIdCorrected);
 
-			p2FrameAdvantage = p1.animLength - GetFramesOfFastestCancel(p2, p2CurrentMoveIdCorrected);
+			p2FrameAdvantage = p1.animLength - p2LastMoveCancelDelay - GetFramesOfFastestCancel(p2, p2CurrentMoveIdCorrected);
 			p1FrameAdvantage = p2FrameAdvantage * -1;
 
 			p1OverlayData.firstActiveFrame = 0;
